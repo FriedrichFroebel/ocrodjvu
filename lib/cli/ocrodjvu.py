@@ -524,7 +524,7 @@ class Context(djvu.decode.Context):
         condition = threading.Condition()
         threads = [
             threading.Thread(target=self.page_thread, args=(pages, results, condition))
-            for i in xrange(njobs)
+            for i in range(njobs)
         ]
         def stop_threads():
             with condition:

@@ -56,23 +56,23 @@ def scan(stream, settings):
             [n] = line.split()[3:]
             n = int(n)
             bbox = text_zones.BBox(*((0, 0) + settings.page_size))
-            children = filter(None, (scan(stream, settings) for i in xrange(n)))
+            children = filter(None, (scan(stream, settings) for i in range(n)))
             zone = text_zones.Zone(const.TEXT_ZONE_PAGE, bbox, children)
             zone.rotate(settings.rotation)
             return zone
         if line.startswith('text block '):
             n, x, y, w, h = map(int, line.split()[2:])
             bbox = text_zones.BBox(x, y, x + w, y + h)
-            [children] = [scan(stream, settings) for i in xrange(n)]
+            [children] = [scan(stream, settings) for i in range(n)]
             return text_zones.Zone(const.TEXT_ZONE_REGION, bbox, children)
         if line.startswith('lines '):
             [n] = line.split()[1:]
             n = int(n)
-            return filter(None, (scan(stream, settings) for i in xrange(n)))
+            return filter(None, (scan(stream, settings) for i in range(n)))
         if line.startswith('line '):
             _, _, _, n, _, _ = line.split()
             n = int(n)
-            children = filter(None, (scan(stream, settings) for i in xrange(n)))
+            children = filter(None, (scan(stream, settings) for i in range(n)))
             if not children:
                 return None
             bbox = text_zones.BBox()

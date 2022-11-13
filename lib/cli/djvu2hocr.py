@@ -172,7 +172,7 @@ def break_chars(char_zone_list, options):
             i = j
             continue
         bbox = text_zones.BBox()
-        for k in xrange(i, j):
+        for k in range(i, j):
             bbox.update(bbox_list[k])
         element = etree.Element('span')
         element.set('class', 'ocrx_word')
@@ -302,7 +302,7 @@ def main(argv=sys.argv):
             n_pages = int(djvused.stdout.readline())
         finally:
             djvused.wait()
-        options.pages = xrange(1, n_pages + 1)
+        options.pages = range(1, n_pages + 1)
     page_iterator = iter(options.pages)
     sed_script = temporary.file(suffix='.djvused')
     for n in options.pages:
@@ -326,7 +326,7 @@ def main(argv=sys.argv):
         try:
             page_size = [
                 int(str(sexpr.Expression.from_stream(djvused.stdout).value).split('=')[1])
-                for i in xrange(2)
+                for i in range(2)
             ]
             options.page_bbox = text_zones.BBox(0, 0, page_size[0], page_size[1])
             page_text = sexpr.Expression.from_stream(djvused.stdout)
