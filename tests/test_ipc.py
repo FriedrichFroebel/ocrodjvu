@@ -155,7 +155,7 @@ class test_environment():
         assert_equal(stderr, [])
         data = dict(line.split('=', 1) for line in stdout)
         has_lc_all = has_lc_ctype = has_lang = 0
-        for key, value in data.iteritems():
+        for key, value in data.items():
             if key == 'LC_ALL':
                 has_lc_all = 1
                 assert_equal(value, '')

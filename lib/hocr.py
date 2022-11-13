@@ -68,7 +68,7 @@ _djvu_zone_to_hocr = {
     const.TEXT_ZONE_LINE: ('span', 'ocrx_line'),
     const.TEXT_ZONE_WORD: ('span', 'ocrx_word'),
 }
-djvu2hocr_capabilities = list(sorted(cls for tag, cls in _djvu_zone_to_hocr.itervalues()))
+djvu2hocr_capabilities = list(sorted(cls for tag, cls in _djvu_zone_to_hocr.values()))
 djvu_zone_to_hocr = _djvu_zone_to_hocr.__getitem__
 del _djvu_zone_to_hocr
 

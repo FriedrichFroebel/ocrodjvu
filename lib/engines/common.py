@@ -33,7 +33,7 @@ class Engine(object):
             raise TypeError('{tp}.name must be a string'.format(tp=tpname))  # no coverage
         if not issubclass(self.image_format, image_io.ImageFormat):
             raise TypeError('{tp}.image_format must be an ImageFormat subclass'.format(tp=tpname))  # no coverage
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             try:
                 prop = getattr(type(self), key)
                 if not isinstance(prop, utils.property):
