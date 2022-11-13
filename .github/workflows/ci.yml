@@ -1,35 +1,24 @@
 name: CI
+
 on:
 - push
 - pull_request
+
 jobs:
   main:
     strategy:
       matrix:
-        include:
-        - cython: cython-0.22.1
-          pydjvu: python-djvulibre-0.3.9
-          lxml: lxml-2.0
-          pyicu: pyicu-1.9.5  # earlier versions FTBFS in this env
-          html5lib: html5lib-0.95
-          pillow: pillow-1.0
-          os: ubuntu-18.04
-        - subprocess: subprocess32-3.2.7
-          os: ubuntu-20.04
-        - gamera: gamera-3.4.0
-          subprocess: subprocess32
-          os: ubuntu-20.04
-    runs-on: ${{matrix.os}}
+        python: [3.8, 3.9, '3.10', '3.11']
+    runs-on: ubuntu-latest
+    name: Python ${{ matrix.python }}
     steps:
-    - uses: actions/checkout@v2
-    - name: set up Python 2.7
-      uses: actions/setup-python@v2
+    - uses: actions/checkout@v3
+    - name: set up Python
+      uses: actions/setup-python@v4
       with:
-        python-version: 2.7
-    - name: set up APT
-      run: |
-        printf '\n\nPackage: *\nPin: release o=Ubuntu\nPin-Priority: 9999\n' | sudo tee -a /etc/apt/preferences
-        printf 'Apt::Install-Recommends "false";\n' | sudo tee -a /etc/apt/apt.conf
+        python-version: $ {{ matrix.python }}
+    - name: apt update
+      run:
         sudo apt-get update
     - name: apt install deps
       run:
@@ -42,53 +31,33 @@ jobs:
           libxml2-utils
           libxslt1-dev
           xsltproc
-    - name: set up pip cache
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: pip-${{matrix.os}}
+    - name: update PIP
+      run:
+        python -m pip install --upgrade pip
     - name: install wheel
-      run: |
-        pip install wheel
+      run:
+        python -m pip install --upgrade wheel
     - name: install Cython
-      run: |
-        v=${{matrix.cython}}
-        v=${v#cython-}
-        python -m pip install cython${v:+==$v}
+      run:
+        python -m pip install cython
     - name: install python-djvulibre
-      run: |
-        v=${{matrix.pydjvu}}
-        v=${v#python-djvulibre-}
-        python -m pip install python-djvulibre${v:+==$v}
+      run:
+        python -m pip install python-djvulibre
     - name: install lxml
-      run: |
-        v=${{matrix.lxml}}
-        v=${v#lxml-}
-        python -m pip install lxml${v:+==$v}
-    - name: install subprocess32
-      if: ${{matrix.subprocess}}
-      run: |
-        dist=${{matrix.subprocess}}
-        dist=${dist/-/==}
-        python -m pip install $dist
+      run:
+        python -m pip install lxml
     - name: install PyICU
-      run: |
-        v=${{matrix.pyicu}}
-        v=${v#pyicu-}
-        python -m pip install pyicu${v:+==$v}
+      run:
+        python -m pip install pyicu
     - name: install html5lib
-      run: |
-        v=${{matrix.html5lib}}
-        v=${v#html5lib-}
-        python -m pip install html5lib${v:+==$v}
+      run:
+        python -m pip install html5lib
     - name: install Pillow
-      run: |
-        v=${{matrix.pillow}}
-        v=${v#pillow-}
-        python -m pip install pillow${v:+==$v}
+      run:
+        python -m pip install pillow
     - name: install nose
       run: |
-        python -m pip install nose
+        python -m pip install nose-py3
     - name: run tests
       run: |
         make test
@@ -117,21 +86,5 @@ jobs:
         man 1 ocrodjvu | grep -A 10 -w OCRODJVU
         man 1 djvu2hocr | grep -A 10 -w DJVU2HOCR
         man 1 hocr2djvused | grep -A 10 -w HOCR2DJVUSED
-    - name: run pydiatra
-      run: |
-        python -m pip install pydiatra
-        python -m pydiatra -v .
-    - name: run pyflakes
-      run: |
-        python -m pip install pyflakes
-        private/run-pyflakes
-  pypi:
-    runs-on: ubuntu-latest
-    steps:
-    - name: check for namesquatting
-      run: |
-        set +e
-        curl -fsS https://pypi.org/simple/ocrodjvu/
-        [ $? -eq 22 ] || exit 1
 
 # vim:ts=2 sts=2 sw=2 et
