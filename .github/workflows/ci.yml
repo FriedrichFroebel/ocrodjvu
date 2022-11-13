@@ -58,7 +58,7 @@ jobs:
     # https://github.com/atsb/nose-py3/issues/2
     - name: install nose
       run: |
-        python -m pip install nose-py3==1.4.0
+        python -m pip install numpy nose-py3==1.4.0
     - name: run tests
       run: |
         make test
