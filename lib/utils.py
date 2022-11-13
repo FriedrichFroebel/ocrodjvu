@@ -64,6 +64,8 @@ def _special_chars_escape(m):
 def smart_repr(s, encoding=None):
     if encoding is None:
         return repr(s)
+    if isinstance(s, str):
+        return repr(s)
     try:
         u = s.decode(encoding)
     except UnicodeDecodeError:
@@ -133,7 +135,7 @@ def not_overridden(f):
     return new_f
 
 def str_as_unicode(s, encoding=locale.getpreferredencoding()):
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         return s
     return s.decode(encoding, 'replace')
 
