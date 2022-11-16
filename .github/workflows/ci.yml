@@ -36,8 +36,8 @@ jobs:
         sudo apt-get install -y
           tesseract-ocr
           cuneiform
-          ocrad
-          gocr
+          #ocrad
+          #gocr
     - name: update PIP
       run:
         python -m pip install --upgrade pip

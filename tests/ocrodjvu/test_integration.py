@@ -36,8 +36,8 @@ class OcrTestCase(TestCase):
         here = os.path.dirname(__file__)
         here = os.path.abspath(here)
         path = os.path.join(here, '..', 'data', 'alice.djvu')
-        stdout = io.BytesIO()
-        stderr = io.BytesIO()
+        stdout = io.StringIO()
+        stderr = io.StringIO()
         with temporary.directory() as tmpdir:
             tmp_path = os.path.join(tmpdir, 'tmp.djvu')
             with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):

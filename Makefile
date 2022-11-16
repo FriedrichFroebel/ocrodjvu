@@ -27,14 +27,16 @@ install_manpage: ocrodjvu
 	install -d $(DESTDIR)$(mandir)/man1
 	install -m644 doc/$(<).1 $(DESTDIR)$(mandir)/man1/
 
+# FIXME: Fix broken `ipc.Subprocess.wait`.
 .PHONY: test
 test:
-	$(PYTHON) -m unittest discover --start-directory tests/
+	$(PYTHON) -W ignore:ResourceWarning -m unittest discover --start-directory tests/
 
+# FIXME: Fix broken `ipc.Subprocess.wait`.
 .PHONY: update-coverage
 update-coverage:
 	coverage erase
-	$(PYTHON) -m coverage run -m unittest discover --start-directory tests/
+	$(PYTHON) -W ignore:ResourceWarning -m coverage run -m unittest discover --start-directory tests/
 	coverage report --include=ocrodjvu/*
 
 .PHONY: clean

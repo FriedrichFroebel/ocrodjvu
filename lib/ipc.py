@@ -115,6 +115,7 @@ class Subprocess(subprocess.Popen):
             raise
 
     def wait(self, *args, **kwargs):
+        # FIXME: This does not close file handles correctly.
         return_code = subprocess.Popen.wait(self, *args, **kwargs)
         if return_code > 0:
             raise CalledProcessError(return_code, self.__command)

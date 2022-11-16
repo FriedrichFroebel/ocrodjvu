@@ -78,7 +78,7 @@ class OcrodjvuTestCase(TestCase):
     def test_list_languages(self):
         self.test_list_engines()
         self.assertTrue(self.engines)
-        for engine in engines:
+        for engine in self.engines:
             with self.subTest(engine=engine):
                 self._test_list_languages(engine)
 

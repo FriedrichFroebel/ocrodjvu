@@ -85,10 +85,7 @@ class WaitTestCase(TestCase):
     def test_wait_signal(self):
         for name in 'SIGINT', 'SIGABRT', 'SIGSEGV':
             with self.subTest(name=name):
-                import tracemalloc
-                tracemalloc.start(10)
                 self._test_signal(name)
-                tracemalloc.stop()
 
 
 class EnvironmentTestCase(TestCase):
