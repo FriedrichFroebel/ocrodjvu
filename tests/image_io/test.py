@@ -20,7 +20,7 @@ from PIL import Image
 
 import djvu.decode
 
-from lib import image_io
+from ocrodjvu import image_io
 
 from tests.tools import sorted_glob, TestCase
 

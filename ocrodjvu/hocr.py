@@ -23,7 +23,7 @@ http://kba.github.io/hocr-spec/1.2/
 import functools
 import re
 
-from . import utils
+from ocrodjvu import utils
 
 try:
     from lxml import etree
@@ -31,10 +31,10 @@ except ImportError as ex:
     utils.enhance_import_error(ex, 'lxml', 'python-lxml', 'https://lxml.de/')
     raise
 
-from . import errors
-from . import html5_support
-from . import text_zones
-from . import unicode_support
+from ocrodjvu import errors
+from ocrodjvu import html5_support
+from ocrodjvu import text_zones
+from ocrodjvu import unicode_support
 
 const = text_zones.const
 

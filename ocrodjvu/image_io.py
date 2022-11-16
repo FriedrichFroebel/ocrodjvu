@@ -15,7 +15,7 @@
 
 import struct
 
-from . import utils
+from ocrodjvu import utils
 
 try:
     import djvu.decode
@@ -51,13 +51,12 @@ class ImageFormat(object):
         return '{mod}.{cls}({bpp})'.format(mod=self.__module__, cls=type(self).__name__, bpp=self.bpp)
 
 class PNM(ImageFormat):
-
-    '''
+    """
     Raw PBM[0] or raw PPM[1].
 
     [0] http://netpbm.sourceforge.net/doc/ppm.html
     [1] http://netpbm.sourceforge.net/doc/pbm.html
-    '''
+    """
 
     extension = 'pnm'
 
@@ -83,12 +82,11 @@ class PNM(ImageFormat):
         file.write(data)
 
 class BMP(ImageFormat):
-
-    '''
+    """
     Uncompressed Windows Bitmap.
 
     https://www.fileformat.info/format/bmp/egff.htm
-    '''
+    """
 
     extension = 'bmp'
 
@@ -134,16 +132,14 @@ class BMP(ImageFormat):
         file.write(data)
 
 class TIFF(ImageFormat):
-
-    '''
+    """
     Uncompressed TIFF.
 
     https://www.fileformat.info/format/tiff/corion.htm
-    '''
+    """
 
     extension = 'tif'
-    # Ideally it should be 'tiff',
-    # but Tesseract is not happy with such an extension
+    # Ideally it should be 'tiff', but Tesseract is not happy with such an extension.
 
     def write_image(self, page_job, render_layers, file):
         size = page_job.size

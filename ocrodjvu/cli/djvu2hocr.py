@@ -13,8 +13,6 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
-from __future__ import print_function
-
 import argparse
 import html
 import locale
@@ -22,19 +20,19 @@ import os
 import re
 import sys
 
-from .. import cli
-from .. import hocr
-from .. import ipc
-from .. import logger
-from .. import temporary
-from .. import text_zones
-from .. import unicode_support
-from .. import utils
-from .. import version
+from ocrodjvu import cli
+from ocrodjvu import hocr
+from ocrodjvu import ipc
+from ocrodjvu import logger
+from ocrodjvu import temporary
+from ocrodjvu import text_zones
+from ocrodjvu import unicode_support
+from ocrodjvu import utils
+from ocrodjvu import version
 
-from ..hocr import etree
-from ..text_zones import const
-from ..text_zones import sexpr
+from ocrodjvu.hocr import etree
+from ocrodjvu.text_zones import const, sexpr
+
 
 __version__ = version.__version__
 
@@ -121,7 +119,7 @@ class Zone(object):
         return '{tp}({sexpr!r})'.format(tp=type(self).__name__, sexpr=self._sexpr)
 
 _xml_string_re = re.compile(
-    u'''
+    '''
     ([^\x00-\x08\x0B\x0C\x0E-\x1F]*)
     ( [\x00-\x08\x0B\x0C\x0E-\x1F]?)
     ''',
@@ -160,7 +158,7 @@ def break_chars(char_zone_list, options):
             )
             bbox_list += [subbox]
         text += [char_text]
-    text = str.join('', text)
+    text = ''.join(text)
     break_iterator = unicode_support.word_break_iterator(text, options.locale)
     element = None
     i = 0
@@ -177,8 +175,8 @@ def break_chars(char_zone_list, options):
         element = etree.Element('span')
         element.set('class', 'ocrx_word')
         element.set('title', 'bbox {bbox}; bboxes {bboxes}'.format(
-            bbox=str.join(' ', map(str, bbox)),
-            bboxes=str.join(', ', (str.join(' ', map(str, bbox)) for bbox in bbox_list[i:j]))
+            bbox=' '.join(map(str, bbox)),
+            bboxes=', '.join(' '.join(map(str, bbox)) for bbox in bbox_list[i:j])
         ))
         set_text(element, subtext)
         yield element
@@ -203,7 +201,7 @@ def break_plain_text(text, bbox, options):
         )
         element = etree.Element('span')
         element.set('class', 'ocrx_word')
-        element.set('title', 'bbox ' + str.join(' ', map(str, subbox)))
+        element.set('title', 'bbox ' + ' '.join(map(str, subbox)))
         set_text(element, subtext)
         yield element
         i = j
@@ -224,7 +222,7 @@ def process_zone(parent, zone, last, options):
         bbox = options.page_bbox
     else:
         bbox = zone.bbox
-    self.set('title', 'bbox ' + str.join(' ', map(str, bbox)))
+    self.set('title', 'bbox ' + ' '.join(map(str, bbox)))
     n_children = zone.n_children
     character_level_details = False
     for n, child_zone in enumerate(zone.children):

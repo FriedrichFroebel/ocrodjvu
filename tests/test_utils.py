@@ -17,9 +17,9 @@ import sys
 import warnings
 from ast import literal_eval
 
-from tests.tools import mock, TestCase
+from ocrodjvu import utils
 
-from lib import utils
+from tests.tools import mock, TestCase
 
 
 class EnhanceImportTestCase(TestCase):

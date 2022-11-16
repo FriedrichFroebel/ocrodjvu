@@ -19,9 +19,9 @@ import os
 import shutil
 import sys
 
-from lib import errors
-from lib import temporary
-from lib.cli import ocrodjvu
+from ocrodjvu import errors
+from ocrodjvu import temporary
+from ocrodjvu.cli import ocrodjvu
 
 from tests.tools import mock, remove_logging_handlers, require_locale_encoding, try_run, TestCase
 

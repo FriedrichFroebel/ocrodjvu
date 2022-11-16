@@ -20,13 +20,13 @@ import re
 import sys
 import shlex
 
-from . import common
-from .. import errors
-from .. import image_io
-from .. import ipc
-from .. import text_zones
-from .. import unicode_support
-from .. import utils
+from ocrodjvu.engines import common
+from ocrodjvu import errors
+from ocrodjvu import image_io
+from ocrodjvu import ipc
+from ocrodjvu import text_zones
+from ocrodjvu import unicode_support
+from ocrodjvu import utils
 
 const = text_zones.const
 

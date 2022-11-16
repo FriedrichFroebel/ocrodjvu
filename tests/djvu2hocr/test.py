@@ -20,10 +20,10 @@ import shlex
 import shutil
 import sys
 
-from lib import ipc
-from lib import errors
-from lib import temporary
-from lib.cli import djvu2hocr
+from ocrodjvu import ipc
+from ocrodjvu import errors
+from ocrodjvu import temporary
+from ocrodjvu.cli import djvu2hocr
 
 from tests.tools import mock, remove_logging_handlers, require_locale_encoding, sorted_glob, try_run, TestCase
 

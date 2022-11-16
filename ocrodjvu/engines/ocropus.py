@@ -15,12 +15,12 @@
 
 import shlex
 
-from . import common
-from . import tesseract
-from .. import errors
-from .. import image_io
-from .. import ipc
-from .. import utils
+from ocrodjvu.engines import common
+from ocrodjvu.engines import tesseract
+from ocrodjvu import errors
+from ocrodjvu import image_io
+from ocrodjvu import ipc
+from ocrodjvu import utils
 
 class Engine(common.Engine):
 
@@ -69,7 +69,7 @@ class Engine(common.Engine):
             self.has_charboxes = True
         # Import hocr late,
         # so that lxml is imported only when needed.
-        from .. import hocr
+        from ocrodjvu import hocr
         self._hocr = hocr
 
     def check_language(self, language):

@@ -13,9 +13,9 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
-from tests.tools import TestCase
+from ocrodjvu.unicode_support import get_icu, simple_word_break_iterator, word_break_iterator
 
-from lib.unicode_support import get_icu, simple_word_break_iterator, word_break_iterator
+from tests.tools import TestCase
 
 
 text = '\u201CJekyll,\u201D cried Utterson, with a\xa0loud voice, \u201CI demand to see you.\u201D'

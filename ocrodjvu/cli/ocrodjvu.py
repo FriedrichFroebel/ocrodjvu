@@ -17,22 +17,22 @@ import argparse
 import contextlib
 import inspect
 import locale
-import os.path
+import os
 import shutil
 import string
 import sys
 import threading
 import traceback
 
-from .. import cli
-from .. import engines
-from .. import errors
-from .. import ipc
-from .. import logger
-from .. import temporary
-from .. import text_zones
-from .. import utils
-from .. import version
+from ocrodjvu import cli
+from ocrodjvu import engines
+from ocrodjvu import errors
+from ocrodjvu import ipc
+from ocrodjvu import logger
+from ocrodjvu import temporary
+from ocrodjvu import text_zones
+from ocrodjvu import utils
+from ocrodjvu import version
 
 # Import this after local modules, so that they can take care of a showing
 # a nice ImportError message.
@@ -64,9 +64,9 @@ class Saver(object):
         raise NotImplementedError('Cannot save results in this format')  # no coverage
 
 class BundledSaver(Saver):
-
-    '''save results as a bundled multi-page document'''
-
+    """
+    Save results as a bundled multi-page document.
+    """
     options = '-o', '--save-bundled'
 
     def __init__(self, save_path):
@@ -85,9 +85,9 @@ class BundledSaver(Saver):
         self._ips.save(None, pages, self._save_path, sed_file)
 
 class IndirectSaver(Saver):
-
-    '''save results as an indirect multi-page document'''
-
+    """
+    Save results as an indirect multi-page document.
+    """
     options = '-i', '--save-indirect'
 
     def __init__(self, save_path):
@@ -102,9 +102,9 @@ class IndirectSaver(Saver):
         self._ips.save(None, pages, self._save_path, sed_file)
 
 class ScriptSaver(Saver):
-
-    '''save a djvused script with results'''
-
+    """
+    Save a djvused script with results.
+    """
     options = '--save-script',
 
     def __init__(self, save_path):
@@ -114,9 +114,9 @@ class ScriptSaver(Saver):
         shutil.copyfile(sed_file.name, self._save_path)
 
 class InPlaceSaver(Saver):
-
-    '''save results in-place'''
-
+    """
+    Save results in-place.
+    """
     options = '--in-place',
     in_place = True
 
@@ -132,9 +132,9 @@ class InPlaceSaver(Saver):
         djvused.wait()
 
 class DryRunSaver(Saver):
-
-    '''don't change any files'''
-
+    """
+    Do not change any files.
+    """
     options = '--dry-run',
 
     def save(self, document, pages, djvu_path, sed_file):

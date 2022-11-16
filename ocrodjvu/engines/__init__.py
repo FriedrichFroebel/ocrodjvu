@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 # encoding=UTF-8
 
-# Copyright © 2008-2018 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2010-2015 Jakub Wilk <jwilk@jwilk.net>
 #
 # This file is part of ocrodjvu.
 #
@@ -14,14 +13,14 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
-import sys
+import pkgutil
 
-basedir = None
-if basedir is not None:
-    sys.path[:0] = [basedir]
-
-from lib.cli import hocr2djvused as cli
-
-cli.main(sys.argv)
+def get_engines():
+    for importer, name, ispkg in pkgutil.iter_modules(__path__):
+        this_module = __import__('', globals=globals(), fromlist=(name,), level=1)
+        engine = getattr(this_module, name).Engine
+        if engine.name is None:
+            continue
+        yield engine
 
 # vim:ts=4 sts=4 sw=4 et

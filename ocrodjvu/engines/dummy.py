@@ -13,9 +13,9 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
-from . import common
-from .. import image_io
-from .. import text_zones
+from ocrodjvu.engines import common
+from ocrodjvu import image_io
+from ocrodjvu import text_zones
 
 class Engine(common.Engine):
 

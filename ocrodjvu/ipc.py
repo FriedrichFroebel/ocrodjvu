@@ -13,7 +13,9 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
-'''interprocess communication'''
+"""
+Interprocess communication.
+"""
 
 import errno
 import logging
@@ -24,7 +26,7 @@ import signal
 import subprocess
 import warnings
 
-from . import utils
+from ocrodjvu import utils
 
 # CalledProcessError, CalledProcessInterrupted
 # ============================================
@@ -82,11 +84,11 @@ class Subprocess(subprocess.Popen):
         # - preserve LC_CTYPE (which is required by some DjVuLibre tools),
         # - but reset all other locale settings (which tend to break things).
         lc_ctype = env.get('LC_ALL') or env.get('LC_CTYPE') or env.get('LANG')
-        env = dict(
-            (k, v)
+        env = {
+            k: v
             for k, v in env.items()
             if not (k.startswith('LC_') or k in ('LANG', 'LANGUAGE'))
-        )
+        }
         if lc_ctype:
             env['LC_CTYPE'] = lc_ctype
         if override:

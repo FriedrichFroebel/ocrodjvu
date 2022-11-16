@@ -16,10 +16,11 @@
 import argparse
 import sys
 
-from .. import cli
-from .. import hocr
-from .. import text_zones
-from .. import version
+from ocrodjvu import cli
+from ocrodjvu import hocr
+from ocrodjvu import text_zones
+from ocrodjvu import version
+
 
 __version__ = version.__version__
 

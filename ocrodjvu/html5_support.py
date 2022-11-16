@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 # encoding=UTF-8
 
-# Copyright © 2009-2018 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2011-2015 Jakub Wilk <jwilk@jwilk.net>
 #
 # This file is part of ocrodjvu.
 #
@@ -14,14 +13,17 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
-import sys
+from ocrodjvu import utils
 
-basedir = None
-if basedir is not None:
-    sys.path[:0] = [basedir]
-
-from lib.cli import djvu2hocr as cli
-
-cli.main(sys.argv)
+def parse(stream):
+    try:
+        import html5lib
+    except ImportError as ex:  # no coverage
+        utils.enhance_import_error(ex, 'html5lib', 'python-html5lib', 'https://github.com/html5lib/html5lib-python')
+        raise
+    return html5lib.parse(stream,
+        treebuilder='lxml',
+        namespaceHTMLElements=False
+    )
 
 # vim:ts=4 sts=4 sw=4 et

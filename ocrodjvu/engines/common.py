@@ -13,8 +13,8 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
-from .. import utils
-from .. import image_io
+from ocrodjvu import utils
+from ocrodjvu import image_io
 
 import io
 

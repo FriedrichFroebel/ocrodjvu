@@ -15,9 +15,9 @@
 
 import io
 
-from tests.tools import TestCase
+from ocrodjvu import text_zones
 
-from lib import text_zones
+from tests.tools import TestCase
 
 
 class PrintSexprTestCase(TestCase):

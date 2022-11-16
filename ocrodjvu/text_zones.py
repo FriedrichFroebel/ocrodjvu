@@ -21,7 +21,7 @@ except ImportError:
 else:  # no coverage
     set_dll_search_path()
 
-from . import utils
+from ocrodjvu import utils
 
 try:
     from djvu import const
@@ -223,15 +223,7 @@ def group_words(zones, details, word_break_iterator):
         i = j
     return words
 
-try:
-    sexpr.Expression(0).as_string(escape_unicode=True)
-except TypeError:
-    # python-djvulibre << 0.4
-    def print_sexpr(expr, file, width=None):
-        return expr.print_into(file, width=width)
-else:
-    # python-djvulibre >= 0.4
-    def print_sexpr(expr, file, width=None):
-        return expr.print_into(file, width=width, escape_unicode=False)
+def print_sexpr(expr, file, width=None):
+    return expr.print_into(file, width=width, escape_unicode=False)
 
 # vim:ts=4 sts=4 sw=4 et

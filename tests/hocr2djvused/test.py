@@ -22,8 +22,8 @@ import sys
 
 import djvu.sexpr
 
-from lib import errors
-from lib.cli import hocr2djvused
+from ocrodjvu import errors
+from ocrodjvu.cli import hocr2djvused
 
 from tests.tools import mock, sorted_glob, try_run, TestCase
 
@@ -120,7 +120,6 @@ class Hocr2djvusedTestCase(TestCase):
             for extra_args in '', '--html5':
                 with self.subTest(base_filename=base_filename, index=index, extra_args=extra_args):
                     self._test_from_file(base_filename, index, extra_args)
-                    return
         for html_filename in sorted_glob(os.path.join(self.here, '*.html')):
             # For HTML files that have no corresponding .test* files, we just check
             # if they won't trigger any exception.

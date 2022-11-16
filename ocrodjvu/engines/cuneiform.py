@@ -21,13 +21,13 @@ import shlex
 import sys
 import warnings
 
-from . import common
-from .. import errors
-from .. import image_io
-from .. import ipc
-from .. import iso639
-from .. import temporary
-from .. import utils
+from ocrodjvu.engines import common
+from ocrodjvu import errors
+from ocrodjvu import image_io
+from ocrodjvu import ipc
+from ocrodjvu import iso639
+from ocrodjvu import temporary
+from ocrodjvu import utils
 
 _language_pattern = re.compile('^[a-z]{3}(?:[+][a-z]{3})*$')
 _language_info_pattern = re.compile(r"^Supported languages: (.*)[.]$")

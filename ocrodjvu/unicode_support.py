@@ -13,7 +13,7 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
-from . import utils
+from ocrodjvu import utils
 
 def get_icu():
     try:
@@ -25,9 +25,9 @@ def get_icu():
         return icu
 
 def simple_word_break_iterator(text):
-    '''
+    """
     Create an instance of simple space-to-space word break iterator.
-    '''
+    """
     if not text:
         return
     space = text[0].isspace()
@@ -38,12 +38,12 @@ def simple_word_break_iterator(text):
     yield len(text)
 
 def word_break_iterator(text, locale=None):
-    '''
+    """
     Create an instance of word break iterator.
 
     text: unicode string
     locale: ICU locale or None
-    '''
+    """
     if locale is None:
         return simple_word_break_iterator(text)
     icu = get_icu()

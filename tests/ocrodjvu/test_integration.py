@@ -19,8 +19,8 @@ import os
 import shutil
 import sys
 
-from lib import temporary
-from lib.cli import ocrodjvu
+from ocrodjvu import temporary
+from ocrodjvu.cli import ocrodjvu
 
 from tests.tools import remove_logging_handlers, try_run, TestCase
 

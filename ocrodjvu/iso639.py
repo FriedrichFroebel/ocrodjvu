@@ -13,9 +13,9 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
-'''
+"""
 ISO 639-2 support
-'''
+"""
 
 # Reference:
 # https://www.loc.gov/standards/iso639-2/php/code_list.php
@@ -47,9 +47,9 @@ _b_to_t = {
 }
 
 def b_to_t(lang, permissive=False):
-    '''
-    convert from ISO 639-2/B to 639-2/T
-    '''
+    """
+    Convert from ISO 639-2/B to 639-2/T.
+    """
     if not isinstance(lang, str):
         raise TypeError
     if len(lang) != 3:

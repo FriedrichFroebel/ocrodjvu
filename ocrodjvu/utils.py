@@ -33,14 +33,14 @@ def enhance_import_error(exception, package, debian_package, homepage):
     exception.msg = message
 
 def parse_page_numbers(pages):
-    '''
+    """
     parse_page_numbers(None) -> None
     parse_page_numbers('17') -> [17]
     parse_page_numbers('37-42') -> [37, 38, ..., 42]
     parse_page_numbers('17,37-42') -> [17, 37, 38, ..., 42]
     parse_page_numbers('42-37') -> []
     parse_page_numbers('17-17') -> [17]
-    '''
+    """
     if pages is None:
         return
     result = []
@@ -83,10 +83,10 @@ _control_characters_regex = re.compile('[{0}]'.format(''.join(
 )).encode('UTF-8'))
 
 def sanitize_utf8(text):
-    '''
+    """
     Replace invalid UTF-8 sequences and control characters (except CR, LF, TAB
     and space) with Unicode replacement characters.
-    '''
+    """
     try:
         text = text.decode('UTF-8')
     except UnicodeDecodeError as exc:
@@ -119,10 +119,10 @@ class NotOverriddenWarning(UserWarning):
     pass
 
 def not_overridden(f):
-    '''
+    """
     Issue NotOverriddenWarning if the decorated method was not overridden in a
     subclass, or called directly.
-    '''
+    """
     @functools.wraps(f)
     def new_f(self, *args, **kwargs):
         cls = type(self)
@@ -140,9 +140,9 @@ def str_as_unicode(s, encoding=locale.getpreferredencoding()):
     return s.decode(encoding, 'replace')
 
 def identity(x):
-    '''
+    """
     identity(x) -> x
-    '''
+    """
     return x
 
 class Property(object):

@@ -16,11 +16,11 @@
 import os
 import sys
 
-from tests.tools import mock, TestCase
+from ocrodjvu.engines.cuneiform import Engine
+from ocrodjvu import errors
+from ocrodjvu import ipc
 
-from lib.engines.cuneiform import Engine
-from lib import errors
-from lib import ipc
+from tests.tools import mock, TestCase
 
 
 here = os.path.dirname(__file__)

@@ -13,17 +13,15 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
-from __future__ import print_function
-
 import argparse
 import sys
 
 __version__ = '0.12'
 
 class VersionAction(argparse.Action):
-    '''
+    """
     argparse --version action
-    '''
+    """
 
     def __init__(self, option_strings, dest=argparse.SUPPRESS):
         super(VersionAction, self).__init__(
@@ -57,7 +55,7 @@ class VersionAction(argparse.Action):
         else:
             print('+ html5lib-python {0}'.format(html5lib.__version__))
         try:
-            from . import unicode_support
+            from ocrodjvu import unicode_support
             pyicu = unicode_support.get_icu()
         except ImportError:  # no coverage
             pass
