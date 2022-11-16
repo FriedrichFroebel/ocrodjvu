@@ -56,6 +56,9 @@ class Output(object):
 
     def __str__(self):
         return self._contents
+    
+    def __bytes__(self):
+        return self._contents
 
     def save(self, prefix):
         path = '{base}.{ext}'.format(base=prefix, ext=self.format)
@@ -63,6 +66,9 @@ class Output(object):
             file.write(str(self))
 
     def as_stringio(self):
-        return io.BytesIO(str(self))
+        return io.StringIO(str(self))
+    
+    def as_bytesio(self):
+        return io.BytesIO(bytes(self))
 
 # vim:ts=4 sts=4 sw=4 et
