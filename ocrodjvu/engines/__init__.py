@@ -1,6 +1,6 @@
 # encoding=UTF-8
 
-# Copyright © 2015 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2010-2015 Jakub Wilk <jwilk@jwilk.net>
 #
 # This file is part of ocrodjvu.
 #
@@ -13,21 +13,14 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
-import io
+import pkgutil
 
-from ocrodjvu import text_zones
-
-from tests.tools import TestCase
-
-
-class PrintSexprTestCase(TestCase):
-    def test_print_sexpr(self):
-        inp = 'jeż'
-        out = '"jeż"'
-        fp = io.StringIO()
-        expr = text_zones.sexpr.Expression(inp)
-        text_zones.print_sexpr(expr, fp)
-        fp.seek(0)
-        self.assertEqual(fp.getvalue(), out)
+def get_engines():
+    for importer, name, ispkg in pkgutil.iter_modules(__path__):
+        this_module = __import__('', globals=globals(), fromlist=(name,), level=1)
+        engine = getattr(this_module, name).Engine
+        if engine.name is None:
+            continue
+        yield engine
 
 # vim:ts=4 sts=4 sw=4 et

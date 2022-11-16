@@ -1,6 +1,6 @@
 # encoding=UTF-8
 
-# Copyright © 2015 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2011-2022 Jakub Wilk <jwilk@jwilk.net>
 #
 # This file is part of ocrodjvu.
 #
@@ -13,21 +13,15 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
-import io
+import argparse
 
-from ocrodjvu import text_zones
+from ocrodjvu import errors
 
-from tests.tools import TestCase
+class ArgumentParser(argparse.ArgumentParser):
 
-
-class PrintSexprTestCase(TestCase):
-    def test_print_sexpr(self):
-        inp = 'jeż'
-        out = '"jeż"'
-        fp = io.StringIO()
-        expr = text_zones.sexpr.Expression(inp)
-        text_zones.print_sexpr(expr, fp)
-        fp.seek(0)
-        self.assertEqual(fp.getvalue(), out)
+    def exit(self, status=0, message=None):
+        if status:
+            status = errors.EXIT_FATAL
+        argparse.ArgumentParser.exit(self, status=status, message=message)
 
 # vim:ts=4 sts=4 sw=4 et

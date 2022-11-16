@@ -17,10 +17,10 @@ import errno
 import os
 import signal
 
-from tests.tools import TestCase, interim_environ
+from ocrodjvu import ipc
+from ocrodjvu import temporary
 
-from lib import ipc
-from lib import temporary
+from tests.tools import interim_environ, TestCase
 
 
 class ExceptionsTestCase(TestCase):
