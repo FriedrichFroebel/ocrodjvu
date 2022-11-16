@@ -267,7 +267,7 @@ def process_zone(parent, zone, last, options):
 def process_page(page_text, options):
     result = process_zone(None, page_text, last=True, options=options)
     tree = etree.ElementTree(result)
-    tree.write(sys.stdout, encoding='UTF-8')
+    sys.stdout.write(etree.tostring(tree, encoding='UTF-8', method='xml').decode('UTF-8'))
 
 hocr_header_template = '''\
 <?xml version="1.0" encoding="UTF-8"?>
