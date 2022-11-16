@@ -109,10 +109,10 @@ class Engine(common.Engine):
     image_format = image_io.TIFF
     needs_utf8_fix = True
 
-    executable = utils.property('tesseract')
-    extra_args = utils.property([], shlex.split)
-    use_hocr = utils.property(None, int)
-    fix_html = utils.property(0, int)
+    executable = utils.Property('tesseract')
+    extra_args = utils.Property([], shlex.split)
+    use_hocr = utils.Property(None, int)
+    fix_html = utils.Property(0, int)
 
     def __init__(self, *args, **kwargs):
         common.Engine.__init__(self, **kwargs)

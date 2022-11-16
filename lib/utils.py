@@ -19,11 +19,11 @@ import os
 import re
 import warnings
 
-debian = os.path.exists('/etc/debian_version')
+IS_DEBIAN = os.path.exists('/etc/debian_version')
 
 def enhance_import_error(exception, package, debian_package, homepage):
     message = str(exception)
-    if not debian:
+    if not IS_DEBIAN:
         debian_package = None
     if debian_package is not None:
         package = debian_package
@@ -145,7 +145,7 @@ def identity(x):
     '''
     return x
 
-class property(object):
+class Property(object):
 
     def __init__(self, default_value=None, filter=identity):
         self._private_name = '__{mod}__{id}'.format(mod=self.__module__, id=id(self))

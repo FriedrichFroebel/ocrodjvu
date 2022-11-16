@@ -11,57 +11,31 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
-PYTHON = python
+PYTHON = python3
 
 PREFIX = /usr/local
 DESTDIR =
 
-bindir = $(PREFIX)/bin
-basedir = $(PREFIX)/share/ocrodjvu
 mandir = $(PREFIX)/share/man
 
 .PHONY: all
 all: ;
 
-python-exe = $(shell $(PYTHON) -c 'import sys; print(sys.executable)')
-
-define install-script
-	sed \
-		-e "1 s@^#!.*@#!$(python-exe)@" \
-		-e "s#^basedir = .*#basedir = '$(basedir)/'#" \
-		$(1) > $(1).tmp
-	install -d $(DESTDIR)$(bindir)
-	install $(1).tmp $(DESTDIR)$(bindir)/$(1)
-	rm $(1).tmp
-endef
-
-define install-lib
-	install -d $(DESTDIR)$(basedir)/lib/$(1)
-	install -p -m644 lib/$(1)/*.py $(DESTDIR)$(basedir)/lib/$(1)
-endef
-
-.PHONY: install
-install: ocrodjvu
-	$(PYTHON) - < lib/__init__.py  # Python version check
-	$(call install-script,ocrodjvu)
-	$(call install-script,hocr2djvused)
-	$(call install-script,djvu2hocr)
-	$(call install-lib)
-	$(call install-lib,cli)
-	$(call install-lib,engines)
-ifeq "$(DESTDIR)" ""
-	umask 022 && $(PYTHON) -m compileall -q $(basedir)/lib/
-endif
-ifeq "$(wildcard doc/*.1)" ""
-	# run "$(MAKE) -C doc" to build the manpages
-else
+.PHONY: install_manpage
+install_manpage: ocrodjvu
+	$(MAKE) -C doc  # build documentation
 	install -d $(DESTDIR)$(mandir)/man1
-	install -m644 doc/*.1 $(DESTDIR)$(mandir)/man1/
-endif
+	install -m644 doc/$(<).1 $(DESTDIR)$(mandir)/man1/
 
 .PHONY: test
-test: ocrodjvu
-	$(PYTHON) -c 'import nose; nose.main()' --verbose
+test:
+	$(PYTHON) -m unittest discover --start-directory tests/
+
+.PHONY: update-coverage
+update-coverage:
+	coverage erase
+	$(PYTHON) -m coverage run -m unittest discover --start-directory tests/
+	coverage report --include=ocrodjvu/*
 
 .PHONY: clean
 clean:

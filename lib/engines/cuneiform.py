@@ -38,9 +38,9 @@ class Engine(common.Engine):
     image_format = image_io.BMP
     needs_utf8_fix = True
 
-    executable = utils.property('cuneiform')
-    extra_args = utils.property([], shlex.split)
-    fix_html = utils.property(0, int)
+    executable = utils.Property('cuneiform')
+    extra_args = utils.Property([], shlex.split)
+    fix_html = utils.Property(0, int)
     # fix_html currently does nothing, but we left it, as it might become
     # useful again at some point in the future.
 

@@ -36,7 +36,7 @@ class Engine(object):
         for key, value in kwargs.items():
             try:
                 prop = getattr(type(self), key)
-                if not isinstance(prop, utils.property):
+                if not isinstance(prop, utils.Property):
                     raise AttributeError
             except AttributeError as ex:
                 ex.args = ('{key!r} is not a valid property for the {engine} engine'.format(key=key, engine=self.name),)
