@@ -80,6 +80,7 @@ class WaitTestCase(TestCase):
         with self.assertRaises(ipc.CalledProcessInterrupted) as ecm:
             child.wait()
         self.assertEqual(str(ecm.exception), "Command 'cat' was interrupted by signal " + name)
+        child.stdin.close()
 
     def test_wait_signal(self):
         for name in 'SIGINT', 'SIGABRT', 'SIGSEGV':
