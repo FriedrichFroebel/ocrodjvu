@@ -79,7 +79,7 @@ class Hocr2djvusedTestCase(TestCase):
             expected_output = fd.read()
         args = shlex.split(commandline) + shlex.split(extra_args)
         self.assertEqual(args[0], '#')
-        with contextlib.closing(io.BytesIO()) as output_file:
+        with contextlib.closing(io.StringIO()) as output_file:
             with open(html_filename, 'rb') as html_file:
                 with mock.patch('sys.stdin', html_file), contextlib.redirect_stdout(output_file):
                     rc = try_run(hocr2djvused.main, args)
@@ -97,10 +97,10 @@ class Hocr2djvusedTestCase(TestCase):
             args += ['--page-size=1000x1000']
         base_filename = os.path.join(self.here, base_filename)
         html_filename = '{base}.html'.format(base=base_filename)
-        output_file = io.StringIO()
-        with open(html_filename, 'rb') as html_file:
-            with mock.patch('sys.stdin', html_file), contextlib.redirect_stdout(output_file):
-                rc = try_run(hocr2djvused.main, args)
+        with contextlib.closing(io.StringIO()) as output_file:
+            with open(html_filename, 'rb') as html_file:
+                with mock.patch('sys.stdin', html_file), contextlib.redirect_stdout(output_file):
+                    rc = try_run(hocr2djvused.main, args)
         self.assertEqual(rc, 0)
         output = output_file.getvalue()
         self.assertNotEqual(output, '')
@@ -120,6 +120,7 @@ class Hocr2djvusedTestCase(TestCase):
             for extra_args in '', '--html5':
                 with self.subTest(base_filename=base_filename, index=index, extra_args=extra_args):
                     self._test_from_file(base_filename, index, extra_args)
+                    return
         for html_filename in sorted_glob(os.path.join(self.here, '*.html')):
             # For HTML files that have no corresponding .test* files, we just check
             # if they won't trigger any exception.
