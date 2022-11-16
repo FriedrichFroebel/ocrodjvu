@@ -36,7 +36,7 @@ class ImageIoTestCase(TestCase):
             layers = djvu.decode.RENDER_MASK_ONLY
         else:
             layers = djvu.decode.RENDER_COLOR
-        base_filename = os.path.join(here, base_filename)
+        base_filename = os.path.join(self.here, base_filename)
         djvu_filename = '{base}.djvu'.format(base=base_filename)
         expected_filename = '{base}_{bpp}bpp.{ext}'.format(base=base_filename, bpp=image_format.bpp, ext=image_format.extension)
         with open(expected_filename, 'rb') as fd:

@@ -74,7 +74,7 @@ class Hocr2djvusedTestCase(TestCase):
         base_filename = os.path.join(self.here, base_filename)
         test_filename = '{base}.test{i}'.format(base=base_filename, i=index)
         html_filename = '{base}.html'.format(base=base_filename)
-        with open(test_filename, 'rb') as fd:
+        with open(test_filename, 'r') as fd:
             commandline = fd.readline()
             expected_output = fd.read()
         args = shlex.split(commandline) + shlex.split(extra_args)

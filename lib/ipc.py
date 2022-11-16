@@ -116,8 +116,10 @@ class Subprocess(subprocess.Popen):
 
     def wait(self, *args, **kwargs):
         return_code = subprocess.Popen.wait(self, *args, **kwargs)
-        self._process.stdout.close()
-        self._process.stderr.close()
+        if self._process:
+            self._process.stdin.close()
+            self._process.stdout.close()
+            self._process.stderr.close()
         if return_code > 0:
             raise CalledProcessError(return_code, self.__command)
         if return_code < 0:
