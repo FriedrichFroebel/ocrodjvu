@@ -60,7 +60,7 @@ class test_enhance_import():
                     raise
                 nonexistent.f()  # quieten pyflakes
             assert_equal(str(ecm.exception),
-                'import of nonexistent halted; None in sys.module; '
+                'import of nonexistent halted; None in sys.modules; '
                 'please install the python-nonexistent package'
             )
 
@@ -74,7 +74,7 @@ class test_enhance_import():
                     raise
                 nonexistent.f()  # quieten pyflakes
             assert_equal(str(ecm.exception),
-                'import of nonexistent halted; None in sys.module; '
+                'import of nonexistent halted; None in sys.modules; '
                 'please install the PyNonexistent package <http://pynonexistent.example.net/>'
             )
 
@@ -88,7 +88,7 @@ class test_enhance_import():
                     raise
                 nonexistent.f()  # quieten pyflakes
             assert_equal(str(ecm.exception),
-                'import of nonexistent halted; None in sys.module; '
+                'import of nonexistent halted; None in sys.modules; '
                 'please install the PyNonexistent package <http://pynonexistent.example.net/>'
             )
         with interim(lib.utils, debian=False):
