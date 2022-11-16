@@ -30,7 +30,7 @@ def enhance_import_error(exception, package, debian_package, homepage):
     message += '; please install the {pkg} package'.format(pkg=package)
     if debian_package is None:
         message += ' <{url}>'.format(url=homepage)
-    exception.args = [message]
+    exception.msg = message
 
 def parse_page_numbers(pages):
     '''

@@ -39,8 +39,8 @@ here = os.path.dirname(__file__)
 here = os.path.relpath(here)
 
 def test_help():
-    stdout = io.BytesIO()
-    stderr = io.BytesIO()
+    stdout = io.StringIO()
+    stderr = io.StringIO()
     with interim(sys, stdout=stdout, stderr=stderr):
         rc = try_run(djvu2hocr.main, ['', '--help'])
     assert_equal(stderr.getvalue(), '')
@@ -48,8 +48,8 @@ def test_help():
     assert_not_equal(stdout.getvalue(), '')
 
 def test_bad_options():
-    stdout = io.BytesIO()
-    stderr = io.BytesIO()
+    stdout = io.StringIO()
+    stderr = io.StringIO()
     with interim(sys, stdout=stdout, stderr=stderr):
         rc = try_run(djvu2hocr.main, [''])
     assert_equal(rc, errors.EXIT_FATAL)
@@ -58,8 +58,8 @@ def test_bad_options():
 
 def test_version():
     # https://bugs.debian.org/573496
-    stdout = io.BytesIO()
-    stderr = io.BytesIO()
+    stdout = io.StringIO()
+    stderr = io.StringIO()
     with interim(sys, stdout=stdout, stderr=stderr):
         rc = try_run(djvu2hocr.main, ['', '--version'])
     assert_equal(stderr.getvalue(), '')
@@ -115,8 +115,8 @@ def test_nonascii_path():
     here = os.path.dirname(__file__)
     here = os.path.abspath(here)
     path = os.path.join(here, '..', 'data', 'empty.djvu')
-    stdout = io.BytesIO()
-    stderr = io.BytesIO()
+    stdout = io.StringIO()
+    stderr = io.StringIO()
     with temporary.directory() as tmpdir:
         tmp_path = os.path.join(tmpdir, 'тмп.djvu')
         os.symlink(path, tmp_path)

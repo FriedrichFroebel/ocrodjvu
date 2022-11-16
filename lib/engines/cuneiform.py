@@ -62,10 +62,11 @@ class Engine(common.Engine):
             )
         except OSError:
             raise errors.UnknownLanguageList
+        stdout = cuneiform.decode('UTF-8')
         self._cuneiform_to_iso = {}
         self._user_to_cuneiform = {}
         try:
-            for line in cuneiform.stdout:
+            for line in stdout:
                 m = _language_info_pattern.match(line)
                 if m is None:
                     continue
