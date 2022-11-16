@@ -59,6 +59,12 @@ jobs:
     - name: run tests
       run:
         make test
+    - name: determine coverage
+      run:
+        make update-coverage
+    #- name: run flake8
+      #run:
+        #python -m flake8 .
     - name: check docs
       run:
         make -C doc check
