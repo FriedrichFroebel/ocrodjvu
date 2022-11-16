@@ -60,7 +60,7 @@ class test_enhance_import():
                     raise
                 nonexistent.f()  # quieten pyflakes
             assert_equal(str(ecm.exception),
-                'No module named nonexistent; '
+                'import of nonexistent halted; None in sys.modules; '
                 'please install the python-nonexistent package'
             )
 
@@ -74,7 +74,7 @@ class test_enhance_import():
                     raise
                 nonexistent.f()  # quieten pyflakes
             assert_equal(str(ecm.exception),
-                'No module named nonexistent; '
+                'import of nonexistent halted; None in sys.modules; '
                 'please install the PyNonexistent package <http://pynonexistent.example.net/>'
             )
 
@@ -88,7 +88,7 @@ class test_enhance_import():
                     raise
                 nonexistent.f()  # quieten pyflakes
             assert_equal(str(ecm.exception),
-                'No module named nonexistent; '
+                'import of nonexistent halted; None in sys.modules; '
                 'please install the PyNonexistent package <http://pynonexistent.example.net/>'
             )
         with interim(lib.utils, debian=False):
@@ -104,7 +104,7 @@ class test_smart_repr():
             assert_equal(eval(smart_repr(s)), s)
 
     def test_unicode_string(self):
-        for s in u'', u'\f', u'eggs', u'''e'gg"s''', u'jeż', u'''j'e"ż''':
+        for s in u'', '\f', 'eggs', '''e'gg"s''', 'jeż', '''j'e"ż''':
             assert_equal(eval(smart_repr(s)), s)
 
     def test_encoded_string(self):
@@ -114,7 +114,6 @@ class test_smart_repr():
         for s in 'jeż', '''j'e"ż''':
             s_repr = smart_repr(s, 'ASCII')
             assert_is_instance(s_repr, str)
-            s_repr.decode('ASCII')
             assert_equal(eval(s_repr), s)
         for s in 'jeż', '''j'e"ż''':
             s_repr = smart_repr(s, 'UTF-8')
@@ -149,26 +148,27 @@ class test_sanitize_utf8():
         def show(message, category, filename, lineno, file=None, line=None):
             with assert_raises_regex(EncodingWarning, '.*control character.*'):
                 raise message
-        s = str.join('', map(chr, xrange(32)))
+        s = ''.join(map(chr, range(32)))
+        s = s.encode('UTF-8')
         with warnings.catch_warnings():
             warnings.showwarning = show
             t = sanitize_utf8(s).decode('UTF-8')
         assert_equal(t,
-            u'\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD'
-            u'\uFFFD\t\n\uFFFD\uFFFD\r\uFFFD\uFFFD'
-            u'\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD'
-            u'\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD'
+            '\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD'
+            '\uFFFD\t\n\uFFFD\uFFFD\r\uFFFD\uFFFD'
+            '\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD'
+            '\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD'
         )
 
     def test_ascii(self):
-        s = 'The quick brown fox jumps over the lazy dog'
+        s = b'The quick brown fox jumps over the lazy dog'
         with warnings.catch_warnings():
             warnings.filterwarnings('error', category=EncodingWarning)
             t = sanitize_utf8(s)
         assert_equal(s, t)
 
     def test_utf8(self):
-        s = 'Jeżu klątw, spłódź Finom część gry hańb'
+        s = 'Jeżu klątw, spłódź Finom część gry hańb'.encode('UTF-8')
         with warnings.catch_warnings():
             warnings.filterwarnings('error', category=EncodingWarning)
             t = sanitize_utf8(s)
@@ -178,11 +178,11 @@ class test_sanitize_utf8():
         def show(message, category, filename, lineno, file=None, line=None):
             with assert_raises_regex(EncodingWarning, '.* invalid continuation byte'):
                 raise message
-        s0 = 'Jeżu klątw, spłódź Finom część gry hańb'
-        good = 'ó'
+        s0 = 'Jeżu klątw, spłódź Finom część gry hańb'.encode('UTF-8')
+        good = 'ó'.encode('UTF-8')
         bad = good.decode('UTF-8').encode('ISO-8859-2')
         s1 = s0.replace(good, bad)
-        s2 = s0.replace(good, u'\N{REPLACEMENT CHARACTER}'.encode('UTF-8'))
+        s2 = s0.replace(good, '\N{REPLACEMENT CHARACTER}'.encode('UTF-8'))
         with warnings.catch_warnings():
             warnings.showwarning = show
             t = sanitize_utf8(s1)
@@ -222,13 +222,13 @@ class test_str_as_unicode():
             assert_equal(str_as_unicode(s, 'ASCII'), u'' + s)
 
     def test_nonascii(self):
-        rc = u'\N{REPLACEMENT CHARACTER}'
-        s = 'jeż'
+        rc = '\N{REPLACEMENT CHARACTER}'
+        s = 'jeż'.encode('UTF-8')
         assert_equal(str_as_unicode(s, 'ASCII'), 'je' + rc + rc)
-        assert_equal(str_as_unicode(s, 'UTF-8'), u'jeż')
+        assert_equal(str_as_unicode(s, 'UTF-8'), 'jeż')
 
     def test_unicode(self):
-        s = u'jeż'
+        s = 'jeż'
         assert_equal(str_as_unicode(s), s)
         assert_equal(str_as_unicode(s, 'ASCII'), s)
         assert_equal(str_as_unicode(s, 'UTF-8'), s)

@@ -13,8 +13,11 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
+import codecs
 import functools
+import locale
 import re
+import sys
 import shlex
 
 from . import common
@@ -56,23 +59,23 @@ def scan(stream, settings):
             [n] = line.split()[3:]
             n = int(n)
             bbox = text_zones.BBox(*((0, 0) + settings.page_size))
-            children = filter(None, (scan(stream, settings) for i in xrange(n)))
+            children = [_f for _f in (scan(stream, settings) for i in range(n)) if _f]
             zone = text_zones.Zone(const.TEXT_ZONE_PAGE, bbox, children)
             zone.rotate(settings.rotation)
             return zone
         if line.startswith('text block '):
-            n, x, y, w, h = map(int, line.split()[2:])
+            n, x, y, w, h = list(map(int, line.split()[2:]))
             bbox = text_zones.BBox(x, y, x + w, y + h)
-            [children] = [scan(stream, settings) for i in xrange(n)]
+            [children] = [scan(stream, settings) for i in range(n)]
             return text_zones.Zone(const.TEXT_ZONE_REGION, bbox, children)
         if line.startswith('lines '):
             [n] = line.split()[1:]
             n = int(n)
-            return filter(None, (scan(stream, settings) for i in xrange(n)))
+            return [_f for _f in (scan(stream, settings) for i in range(n)) if _f]
         if line.startswith('line '):
             _, _, _, n, _, _ = line.split()
             n = int(n)
-            children = filter(None, (scan(stream, settings) for i in xrange(n)))
+            children = [_f for _f in (scan(stream, settings) for i in range(n)) if _f]
             if not children:
                 return None
             bbox = text_zones.BBox()
@@ -83,7 +86,7 @@ def scan(stream, settings):
         line = line.lstrip()
         if line[0].isdigit():
             coords, line = line.split('; ', 1)
-            x, y, w, h = map(int, coords.split())
+            x, y, w, h = list(map(int, coords.split()))
             bbox = text_zones.BBox(x, y, x + w, y + h)
             if line[0] == '0':
                 # No interpretations have been proposed for this particular character.
@@ -156,6 +159,7 @@ class Engine(common.Engine):
             stdin=ipc.DEVNULL,
             stdout=ipc.PIPE,
         )
+        worker.stdout = codecs.getreader(sys.stdout.encoding or locale.getpreferredencoding())(worker.stdout)
         try:
             return common.Output(
                 worker.stdout.read(),

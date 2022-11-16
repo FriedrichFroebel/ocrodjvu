@@ -68,7 +68,7 @@ _djvu_zone_to_hocr = {
     const.TEXT_ZONE_LINE: ('span', 'ocrx_line'),
     const.TEXT_ZONE_WORD: ('span', 'ocrx_word'),
 }
-djvu2hocr_capabilities = list(sorted(cls for tag, cls in _djvu_zone_to_hocr.itervalues()))
+djvu2hocr_capabilities = list(sorted(cls for tag, cls in _djvu_zone_to_hocr.values()))
 djvu_zone_to_hocr = _djvu_zone_to_hocr.__getitem__
 del _djvu_zone_to_hocr
 
@@ -127,7 +127,7 @@ def _apply_bboxes(djvu_class, bbox_source, text, settings, page_size):
         if not m:
             return [text]
         coordinates = (int(x) for x in m.group(1).replace(',', ' ').split())
-        coordinates = zip(coordinates, coordinates, coordinates, coordinates)
+        coordinates = list(zip(coordinates, coordinates, coordinates, coordinates))
     else:
         # bboxes from an iterator
         coordinates = []
@@ -164,7 +164,7 @@ def _apply_bboxes(djvu_class, bbox_source, text, settings, page_size):
                 i = j
                 continue
             bbox = text_zones.BBox()
-            for k in xrange(i, j):
+            for k in range(i, j):
                 if settings.cuneiform and coordinates[k] == (-1, -1, -1, -1):
                     raise errors.MalformedHocr("missing bbox for non-whitespace character")
                 bbox.update(text_zones.BBox(*coordinates[k]))
@@ -175,7 +175,7 @@ def _apply_bboxes(djvu_class, bbox_source, text, settings, page_size):
             else:
                 last_word += [
                     text_zones.Zone(type=const.TEXT_ZONE_CHARACTER, bbox=(x0, y0, x1, y1), children=[ch])
-                    for k in xrange(i, j)
+                    for k in range(i, j)
                     for (x0, y0, x1, y1), ch in [(coordinates[k], text[k])]
                 ]
             i = j
@@ -407,7 +407,7 @@ def extract_tesseract_bbox_data(node):
         if not line or line.startswith('//'):
             continue
         chars, x0, y0, x1, y1, w = line.split()
-        x0, y0, x1, y1 = map(int, (x0, y0, x1, y1))
+        x0, y0, x1, y1 = list(map(int, (x0, y0, x1, y1)))
         if chars == '~':
             chars = [None]
         w = x1 - x0
@@ -431,7 +431,7 @@ def read_document(stream, settings):
         #
         # FIXME: This work-around is ugly and should be dropped at some point.
         contents = stream.read()
-        contents = utils.sanitize_utf8(contents)
+        contents = utils.sanitize_utf8(contents.encode('UTF-8'))
         if settings.html5:
             return html5_support.parse(contents)
         else:

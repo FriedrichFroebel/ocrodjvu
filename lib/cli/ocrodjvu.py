@@ -13,8 +13,6 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
-from __future__ import print_function
-
 import argparse
 import contextlib
 import inspect
@@ -55,8 +53,8 @@ class Saver(object):
 
     @classmethod
     def get_n_args(cls):
-        init_args, _, _, _ = inspect.getargspec(cls.__init__)
-        return len(init_args) - 1
+        full_arg_spec = inspect.getfullargspec(cls.__init__)
+        return len(full_arg_spec.args) - 1
 
     def check(self):
         pass
@@ -258,7 +256,7 @@ class ArgumentParser(cli.ArgumentParser):
         self.add_argument('--list-engines', action=self.list_engines, nargs=0, help='print list of available OCR engines')
         self.add_argument('-l', '--language', dest='language', help='set recognition language')
         self.add_argument('--list-languages', action=self.list_languages, nargs=0, help='print list of available languages')
-        self.add_argument('--render', dest='render_layers', choices=self._render_map.keys(), action='store', default='mask', help='image layers to render')
+        self.add_argument('--render', dest='render_layers', choices=list(self._render_map.keys()), action='store', default='mask', help='image layers to render')
         def pages(x):
             return utils.parse_page_numbers(x)
         self.add_argument('-p', '--pages', dest='pages', action='store', default=None, type=pages, help='pages to process')
@@ -400,9 +398,9 @@ class Context(djvu.decode.Context):
         bpp = 24 if self._options.render_layers != djvu.decode.RENDER_MASK_ONLY else 1
         self._image_format = self._options.engine.image_format(bpp)
 
-    def _temp_file(self, name, auto_remove=True):
+    def _temp_file(self, name, mode='w+', encoding=locale.getpreferredencoding(), auto_remove=True):
         path = os.path.join(self._temp_dir, name)
-        file = open(path, 'w+b')
+        file = open(path, mode=mode, encoding=encoding)
         if not self._debug and auto_remove:
             file = temporary.wrapper(file, file.name)
         return file
@@ -417,7 +415,7 @@ class Context(djvu.decode.Context):
         file = self._temp_file('{n:06}.{ext}'.format(
             n=nth,
             ext=output_format.extension
-        ))
+        ), mode='wb', encoding=None)
         try:
             output_format.write_image(page_job, self._options.render_layers, file)
             file.flush()
@@ -452,7 +450,8 @@ class Context(djvu.decode.Context):
             if self._debug:
                 result.save(os.path.join(self._temp_dir, '{n:06}'.format(n=page.n)))
             self.save_raw_ocr(page, result)
-            [text] = self._engine.extract_text(result.as_stringio(),
+            [text] = self._engine.extract_text(
+                result.as_stringio() if self._engine.name != 'gocr' else result.as_bytesio(),
                 rotation=page.rotation,
                 details=self._options.details,
                 uax29=self._options.uax29,
@@ -510,7 +509,7 @@ class Context(djvu.decode.Context):
 
     def _process(self, path, pages=None):
         self._engine = self._options.engine
-        logger.info('Processing {path}:'.format(path=utils.smart_repr(path, system_encoding)))
+        logger.info('Processing {path}:'.format(path=path))
         document = self.new_document(djvu.decode.FileURI(path))
         document.decoding_job.wait()
         if pages is None:
@@ -524,7 +523,7 @@ class Context(djvu.decode.Context):
         condition = threading.Condition()
         threads = [
             threading.Thread(target=self.page_thread, args=(pages, results, condition))
-            for i in xrange(njobs)
+            for i in range(njobs)
         ]
         def stop_threads():
             with condition:
@@ -540,7 +539,7 @@ class Context(djvu.decode.Context):
                 sed_file.write('remove-txt\n')
             for page in pages:
                 try:
-                    file_id = page.file.id.encode(system_encoding)
+                    file_id = page.file.id
                 except UnicodeError:
                     pageno = page.n + 1
                     logger.warning('warning: cannot convert page {n} identifier to locale encoding'.format(n=pageno))

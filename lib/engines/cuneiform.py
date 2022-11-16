@@ -13,9 +13,12 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
+import codecs
+import locale
 import os
 import re
 import shlex
+import sys
 import warnings
 
 from . import common
@@ -62,6 +65,7 @@ class Engine(common.Engine):
             )
         except OSError:
             raise errors.UnknownLanguageList
+        cuneiform.stdout = codecs.getreader(sys.stdout.encoding or locale.getpreferredencoding())(cuneiform.stdout)
         self._cuneiform_to_iso = {}
         self._user_to_cuneiform = {}
         try:

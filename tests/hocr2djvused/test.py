@@ -38,8 +38,8 @@ here = os.path.dirname(__file__)
 here = os.path.relpath(here)
 
 def test_help():
-    stdout = io.BytesIO()
-    stderr = io.BytesIO()
+    stdout = io.StringIO()
+    stderr = io.StringIO()
     with interim(sys, stdout=stdout, stderr=stderr):
         rc = try_run(hocr2djvused.main, ['', '--help'])
     assert_equal(stderr.getvalue(), '')
@@ -48,8 +48,8 @@ def test_help():
 
 def test_version():
     # https://bugs.debian.org/573496
-    stdout = io.BytesIO()
-    stderr = io.BytesIO()
+    stdout = io.StringIO()
+    stderr = io.StringIO()
     with interim(sys, stdout=stdout, stderr=stderr):
         rc = try_run(hocr2djvused.main, ['', '--version'])
     assert_equal(stderr.getvalue(), '')
@@ -57,8 +57,8 @@ def test_version():
     assert_not_equal(stdout.getvalue(), '')
 
 def test_bad_options():
-    stdout = io.BytesIO()
-    stderr = io.BytesIO()
+    stdout = io.StringIO()
+    stderr = io.StringIO()
     with interim(sys, stdout=stdout, stderr=stderr):
         rc = try_run(hocr2djvused.main, ['', '--bad-option'])
     assert_equal(rc, errors.EXIT_FATAL)

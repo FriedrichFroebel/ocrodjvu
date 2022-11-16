@@ -31,7 +31,7 @@ def test_print_sexpr():
         out = r'"je\305\274"'
     else:
         out = '"jeż"'
-    fp = io.BytesIO()
+    fp = io.StringIO()
     expr = text_zones.sexpr.Expression(inp)
     text_zones.print_sexpr(expr, fp)
     fp.seek(0)

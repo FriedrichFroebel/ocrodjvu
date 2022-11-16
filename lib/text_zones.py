@@ -59,7 +59,7 @@ class BBox(object):
     def __getitem__(self, item):
         return self._coordinates[item]
 
-    def __nonzero__(self):
+    def __bool__(self):
         for value in self._coordinates:
             if value is None:
                 return False
@@ -208,7 +208,7 @@ def group_words(zones, details, word_break_iterator):
             i = j
             continue
         bbox = BBox()
-        for k in xrange(i, j):
+        for k in range(i, j):
             bbox.update(zones[k].bbox)
         last_word = Zone(type=const.TEXT_ZONE_WORD, bbox=bbox)
         words += [last_word]
@@ -217,7 +217,7 @@ def group_words(zones, details, word_break_iterator):
         else:
             last_word += [
                 Zone(type=const.TEXT_ZONE_CHARACTER, bbox=(x0, y0, x1, y1), children=[ch])
-                for k in xrange(i, j)
+                for k in range(i, j)
                 for (x0, y0, x1, y1), ch in [(zones[k].bbox, text[k])]
             ]
         i = j

@@ -102,8 +102,8 @@ class test_environment():
                 stdout=ipc.PIPE, stderr=ipc.PIPE,
             )
             stdout, stderr = child.communicate()
-            assert_equal(stdout, '42')
-            assert_equal(stderr, '')
+            assert_equal(stdout, b'42')
+            assert_equal(stderr, b'')
 
     def test2(self):
         with interim_environ(ocrodjvu='42'):
@@ -113,8 +113,8 @@ class test_environment():
                 env={},
             )
             stdout, stderr = child.communicate()
-            assert_equal(stdout, '42')
-            assert_equal(stderr, '')
+            assert_equal(stdout, b'42')
+            assert_equal(stderr, b'')
 
     def test3(self):
         with interim_environ(ocrodjvu='42'):
@@ -124,8 +124,8 @@ class test_environment():
                 env=dict(ocrodjvu='24'),
             )
             stdout, stderr = child.communicate()
-            assert_equal(stdout, '24')
-            assert_equal(stderr, '')
+            assert_equal(stdout, b'24')
+            assert_equal(stderr, b'')
 
     def test_path(self):
         path = os.getenv('PATH')
@@ -142,20 +142,20 @@ class test_environment():
                     stdout=ipc.PIPE, stderr=ipc.PIPE,
                 )
                 stdout, stderr = child.communicate()
-                assert_equal(stdout, '42')
-                assert_equal(stderr, '')
+                assert_equal(stdout, b'42')
+                assert_equal(stderr, b'')
 
     def _test_locale(self):
         child = ipc.Subprocess(['locale'],
             stdout=ipc.PIPE, stderr=ipc.PIPE
         )
         stdout, stderr = child.communicate()
-        stdout = stdout.splitlines()
-        stderr = stderr.splitlines()
+        stdout = stdout.decode('UTF-8').splitlines()
+        stderr = stderr.decode('UTF-8').splitlines()
         assert_equal(stderr, [])
         data = dict(line.split('=', 1) for line in stdout)
         has_lc_all = has_lc_ctype = has_lang = 0
-        for key, value in data.iteritems():
+        for key, value in data.items():
             if key == 'LC_ALL':
                 has_lc_all = 1
                 assert_equal(value, '')

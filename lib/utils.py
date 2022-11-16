@@ -30,7 +30,7 @@ def enhance_import_error(exception, package, debian_package, homepage):
     message += '; please install the {pkg} package'.format(pkg=package)
     if debian_package is None:
         message += ' <{url}>'.format(url=homepage)
-    exception.args = [message]
+    exception.msg = message
 
 def parse_page_numbers(pages):
     '''
@@ -46,13 +46,13 @@ def parse_page_numbers(pages):
     result = []
     for page_range in pages.split(','):
         if '-' in page_range:
-            x, y = map(int, page_range.split('-', 1))
-            result += xrange(x, y + 1)
+            x, y = list(map(int, page_range.split('-', 1)))
+            result += range(x, y + 1)
         else:
             result += [int(page_range, 10)]
     return result
 
-_special_chars_replace = re.compile(ur'''[\x00-\x1F'"\x5C\x7F-\x9F]''').sub
+_special_chars_replace = re.compile(r'''[\x00-\x1F'"\x5C\x7F-\x9F]''').sub
 
 def _special_chars_escape(m):
     ch = m.group(0)
@@ -64,21 +64,23 @@ def _special_chars_escape(m):
 def smart_repr(s, encoding=None):
     if encoding is None:
         return repr(s)
-    try:
-        u = s.decode(encoding)
-    except UnicodeDecodeError:
+    if isinstance(s, str):
         return repr(s)
+    try:
+        u = s.encode(encoding)
+    except UnicodeEncodeError:
+        return repr(s)
+    u = u.decode(encoding)
     u = _special_chars_replace(_special_chars_escape, u)
-    s = u.encode(encoding)
-    return "'{0}'".format(s)
+    return "'{0}'".format(u)
 
 class EncodingWarning(UserWarning):
     pass
 
-_control_characters_regex = re.compile('[{0}]'.format(str.join('', (
-    ch for ch in map(chr, xrange(32))
-    if ch not in u'\n\r\t'
-))))
+_control_characters_regex = re.compile('[{0}]'.format(''.join(
+    ch for ch in map(chr, range(32))
+    if ch not in '\n\r\t'
+)).encode('UTF-8'))
 
 def sanitize_utf8(text):
     '''
@@ -133,7 +135,7 @@ def not_overridden(f):
     return new_f
 
 def str_as_unicode(s, encoding=locale.getpreferredencoding()):
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         return s
     return s.decode(encoding, 'replace')
 
