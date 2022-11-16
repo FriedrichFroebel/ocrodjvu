@@ -38,9 +38,9 @@ Example
 Requisites
 ==========
 
-The following software is needed to run ocrodjvu:
+The following software is required to run ocrodjvu:
 
-* Python 2.7
+* Python_ 3
 
 * an OCR engine:
 
@@ -54,8 +54,6 @@ The following software is needed to run ocrodjvu:
 
 * python-djvulibre_
 
-* subprocess32_
-
 * lxml_ ≥ 2.0
 
 Additionally, some optional features require the following software:
@@ -66,7 +64,7 @@ Additionally, some optional features require the following software:
 * html5lib_ —
   required for the ``--html5`` option
 
-The following software is needed to rebuild the manual pages from
+The following software is required to rebuild the manual pages from
 source:
 
 * xsltproc_
@@ -74,6 +72,8 @@ source:
 * `DocBook XSL stylesheets`_
 
 
+.. _Python:
+   https://www.python.org/
 .. _OCRopus:
    https://code.google.com/p/ocropus/
 .. _Cuneiform:
@@ -81,7 +81,7 @@ source:
 .. _Ocrad:
    https://www.gnu.org/software/ocrad/
 .. _GOCR:
-   http://www-e.uni-magdeburg.de/jschulen/ocr/
+   https://www-e.uni-magdeburg.de/jschulen/ocr/
 .. _Tesseract:
    https://github.com/tesseract-ocr/tesseract
 .. _DjVuLibre:
@@ -90,8 +90,6 @@ source:
    https://jwilk.net/software/python-djvulibre
 .. _lxml:
    https://lxml.de/
-.. _subprocess32:
-   https://pypi.org/project/subprocess32/
 .. _PyICU:
    https://pypi.org/project/PyICU/
 .. _html5lib:
@@ -101,11 +99,53 @@ source:
 .. _DocBook XSL stylesheets:
    https://github.com/docbook/xslt10-stylesheets
 
+Installation
+============
+
+You can use ocrodjvu without installing it, straight out of unpacked source tarball or a VCS checkout.
+
+It's also possible to install it system-wide with::
+
+   pip install .
+
+The man pages can be deployed using::
+
+   make install_manpage
+
+By default, ``make install_manpage`` installs them to ``/usr/local/``. You can specify a different installation prefix by setting the ``PREFIX`` variable, e.g.::
+
+   make install PREFIX="$HOME/.local"
+
+About this fork
+===============
+
+This repository is a port of the original repository to Python 3.
+
+The process involved the *2to3* tool and manual fixes afterwards to get the existing tests to pass. While this port started from scratch to already include the latest upstream changes, the fork by `@rmast`_ which accumulated previous porting attempts provided some great help (see `Issue #39`_ as well).
+
+Due to the upstream repository having been archived (`Issue #46`_), this fork will now be maintained on its own. Please note that I do not have any plans on implementing completely new features for now. Nevertheless, I am going to try to keep this fork working for at least the parts which I actually use on a regular basis.
+
+Differences from upstream
+-------------------------
+
+* Package requires Python ≥ 3.6.
+* Migrate from *nose* to plain *unittest* stdlib module.
+* Conform to PEP8 coding style.
+* Use standardized *setup.py*-based installation.
+* Rename *lib* to *ocrodjvu* and migrate *ocrodjvu* binary to *__main__.py* and console script version.
+* Drop support for *ocropus*/*ocropy* as only the rather old legacy versions ≤ 0.3.1 from 2008 have been supported.
+
+
+.. _@rmast:
+   https://github.com/rmast/ocrodjvu/tree/python3
+.. _Issue #46:
+   https://github.com/jwilk-archive/ocrodjvu/issues/46
+.. _Issue #39:
+   https://github.com/jwilk-archive/ocrodjvu/issues/39
+
 Acknowledgment
 ==============
 
 ocrodjvu development was supported by the Polish Ministry of Science
 and Higher Education's grant no. N N519 384036 (2009–2012,
 https://bitbucket.org/jsbien/ndt).
-
-.. vim:ft=rst ts=3 sts=3 sw=3 et tw=72
