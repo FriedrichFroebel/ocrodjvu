@@ -105,7 +105,7 @@ class Subprocess(subprocess.Popen):
             logger.debug(str.join(' ', map(pipes.quote, commandline)))
         self.__command = commandline[0]
         try:
-            self._process = subprocess.Popen.__init__(self, *args, **kwargs)
+            subprocess.Popen.__init__(self, *args, **kwargs)
         except EnvironmentError as ex:
             suffix = ': ' + repr(self.__command)
             if ex.strerror.endswith(suffix):
@@ -116,10 +116,9 @@ class Subprocess(subprocess.Popen):
 
     def wait(self, *args, **kwargs):
         return_code = subprocess.Popen.wait(self, *args, **kwargs)
-        if self._process:
-            self._process.stdin.close()
-            self._process.stdout.close()
-            self._process.stderr.close()
+        self.stdin.close()
+        self.stdout.close()
+        self.stderr.close()
         if return_code > 0:
             raise CalledProcessError(return_code, self.__command)
         if return_code < 0:

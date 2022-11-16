@@ -97,12 +97,12 @@ class Hocr2djvusedTestCase(TestCase):
             args += ['--page-size=1000x1000']
         base_filename = os.path.join(self.here, base_filename)
         html_filename = '{base}.html'.format(base=base_filename)
-        with contextlib.closing(io.StringIO()) as output_file:
-            with open(html_filename, 'rb') as html_file:
-                with mock.patch('sys.stdin', html_file), contextlib.redirect_stdout(output_file):
-                    rc = try_run(hocr2djvused.main, args)
-            self.assertEqual(rc, 0)
-            output = output_file.getvalue()
+        output_file = io.StringIO()
+        with open(html_filename, 'rb') as html_file:
+            with mock.patch('sys.stdin', html_file), contextlib.redirect_stdout(output_file):
+                rc = try_run(hocr2djvused.main, args)
+        self.assertEqual(rc, 0)
+        output = output_file.getvalue()
         self.assertNotEqual(output, '')
 
     def test_from_file(self):
