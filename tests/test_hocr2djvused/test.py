@@ -101,8 +101,8 @@ class Hocr2djvusedTestCase(TestCase):
             with open(html_filename, 'rb') as html_file:
                 with mock.patch('sys.stdin', html_file), contextlib.redirect_stdout(output_file):
                     rc = try_run(hocr2djvused.main, args)
-        self.assertEqual(rc, 0)
-        output = output_file.getvalue()
+            self.assertEqual(rc, 0)
+            output = output_file.getvalue()
         self.assertNotEqual(output, '')
 
     def test_from_file(self):
