@@ -53,7 +53,7 @@ class Saver(object):
 
     @classmethod
     def get_n_args(cls):
-        full_arg_spec = inspect.getargspec(cls.__init__)
+        full_arg_spec = inspect.getfullargspec(cls.__init__)
         return len(full_arg_spec.args) - 1
 
     def check(self):
