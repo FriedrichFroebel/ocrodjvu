@@ -62,8 +62,6 @@ class OcrodjvuTestCase(TestCase):
         stderr = io.StringIO()
         with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
             rc = try_run(ocrodjvu.main, ['', '--list-engines'])
-        print(stderr.getvalue())
-        print(stdout.getvalue())
         self.assertEqual(stderr.getvalue(), '')
         self.assertEqual(rc, 0)
         self.engines = stdout.getvalue().splitlines()
