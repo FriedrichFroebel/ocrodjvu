@@ -69,7 +69,7 @@ class Engine(common.Engine):
         self._cuneiform_to_iso = {}
         self._user_to_cuneiform = {}
         try:
-            for line in stdout:
+            for line in cuneiform.stdout:
                 m = _language_info_pattern.match(line)
                 if m is None:
                     continue

@@ -321,7 +321,7 @@ def main(argv=sys.argv):
     )
     if not options.css:
         hocr_header = re.sub(hocr_header_style_re, '', hocr_header, count=1)
-    sys.stdout.write(hocr_header.encode('UTF-8'))
+    sys.stdout.write(hocr_header)
     for n in page_iterator:
         try:
             page_size = [
@@ -335,7 +335,7 @@ def main(argv=sys.argv):
         logger.info('- Page #{n}'.format(n=n))
         page_zone = Zone(page_text, page_size[1])
         process_page(page_zone, options)
-    sys.stdout.write(hocr_footer.encode('UTF-8'))
+    sys.stdout.write(hocr_footer)
     djvused.wait()
 
 # vim:ts=4 sts=4 sw=4 et

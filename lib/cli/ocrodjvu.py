@@ -539,7 +539,7 @@ class Context(djvu.decode.Context):
                 sed_file.write('remove-txt\n')
             for page in pages:
                 try:
-                    file_id = page.file.id.encode(system_encoding)
+                    file_id = page.file.id
                 except UnicodeError:
                     pageno = page.n + 1
                     logger.warning('warning: cannot convert page {n} identifier to locale encoding'.format(n=pageno))
