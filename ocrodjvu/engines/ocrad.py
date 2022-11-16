@@ -157,7 +157,6 @@ class Engine(common.Engine):
             [self.executable, '--charset', charset, '--format=utf8', '-x'] + self.extra_args + ['-', image.name],
             stdin=ipc.DEVNULL,
             stdout=ipc.PIPE,
-            stderr=ipc.PIPE,
         )
         worker.stdout = codecs.getreader(sys.stdout.encoding or locale.getpreferredencoding())(worker.stdout)
         try:
