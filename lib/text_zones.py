@@ -59,7 +59,7 @@ class BBox(object):
     def __getitem__(self, item):
         return self._coordinates[item]
 
-    def __nonzero__(self):
+    def __bool__(self):
         for value in self._coordinates:
             if value is None:
                 return False

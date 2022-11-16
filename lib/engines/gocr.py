@@ -131,7 +131,7 @@ class Engine(common.Engine):
             raise errors.EngineNotFound(Engine.name)
         try:
             line = gocr.stderr.read()
-            m = _version_re.search(line)
+            m = _version_re.search(line.decode('UTF-8'))
             if not m:
                 raise errors.EngineNotFound(Engine.name)
             version = tuple(map(int, m.groups()))

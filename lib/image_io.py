@@ -72,9 +72,9 @@ class PNM(ImageFormat):
         size = page_job.size
         rect = (0, 0) + size
         if self._pixel_format.bpp == 1:
-            file.write('P4 {0} {1}\n'.format(*size))  # PBM header
+            file.write('P4 {0} {1}\n'.format(*size).encode('ASCII'))  # PBM header
         else:
-            file.write('P6 {0} {1} 255\n'.format(*size))  # PPM header
+            file.write('P6 {0} {1} 255\n'.format(*size).encode('ASCII'))  # PPM header
         data = page_job.render(
             render_layers,
             rect, rect,
@@ -111,7 +111,7 @@ class BMP(ImageFormat):
         n_palette_colors = 2 * (self._pixel_format.bpp == 1)
         headers_size = 54 + 4 * n_palette_colors
         file.write(struct.pack('<ccIHHI',
-            'B', 'M',  # magic
+            b'B', b'M',  # magic
             len(data) + headers_size,  # whole file size
             0, 0,  # identification magic
             headers_size  # offset to pixel data
@@ -164,7 +164,7 @@ class TIFF(ImageFormat):
         n_tags = 9
         data_offset = 28 + n_tags * 12
         header = []
-        header += struct.pack('<ccHI', 'I', 'I', 42, 22),  # main header
+        header += struct.pack('<ccHI', b'I', b'I', 42, 22),  # main header
         header += struct.pack('<HHH', 8, 8, 8),  # bits per sample
         header += struct.pack('<II', page_job.dpi, 1),  # resolution
         header += struct.pack('<H', n_tags),  # number of tags
@@ -182,7 +182,7 @@ class TIFF(ImageFormat):
         header += struct.pack('<HHII', 0x11B, 5, 1, 14),  # YResolution
         header += struct.pack('<I', 0),  # offset to next IFD
         assert len(header) == n_tags + 5
-        header = str.join('', header)
+        header = b''.join(header)
         assert len(header) == data_offset
         file.write(header)
         file.write(data)

@@ -13,10 +13,10 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
-from __future__ import print_function
-
-import cgi
+import codecs
 import glob
+import html
+import locale
 import os
 import re
 import shlex
@@ -50,7 +50,9 @@ _bbox_extras_template = '''\
 '''
 
 def _filter_boring_stderr(stderr):
-    if stderr and stderr[0].startswith('Tesseract Open Source OCR Engine'):
+    if not stderr:
+        return
+    if stderr[0].startswith('Tesseract Open Source OCR Engine'):
         # Tesseract prints its own name on standard error
         # even if nothing went wrong.
         del stderr[0]
@@ -90,10 +92,10 @@ def fix_html(s):
         )
         ''', re.IGNORECASE | re.VERBOSE | re.DOTALL
     )
-    return str.join('', (
-        chunk if n & 1 else cgi.escape(chunk)
+    return ''.join(
+        chunk if n & 1 else html.escape(chunk)
         for n, chunk in enumerate(regex.split(s))
-    ))
+    )
 
 class ExtractSettings(object):
 
@@ -139,6 +141,10 @@ class Engine(common.Engine):
             )
         except OSError:
             raise errors.UnknownLanguageList
+        
+        tesseract.stdout = codecs.getreader(sys.stdout.encoding or locale.getpreferredencoding())(tesseract.stdout)
+        tesseract.stderr = codecs.getreader(sys.stdout.encoding or locale.getpreferredencoding())(tesseract.stderr)
+
         try:
             stderr = tesseract.stderr.read()
             match = _error_pattern.search(stderr)
@@ -211,6 +217,7 @@ class Engine(common.Engine):
                 stdout=ipc.DEVNULL,
                 stderr=ipc.PIPE,
             )
+            worker.stderr = codecs.getreader(sys.stderr.encoding or locale.getpreferredencoding())(worker.stderr)
             _wait_for_worker(worker)
             with open(os.path.join(output_dir, 'tmp.txt'), 'rt') as file:
                 return common.Output(
@@ -244,6 +251,7 @@ class Engine(common.Engine):
                 stdout=ipc.DEVNULL,
                 stderr=ipc.PIPE,
             )
+            worker.stderr = codecs.getreader(sys.stderr.encoding or locale.getpreferredencoding())(worker.stderr)
             _wait_for_worker(worker)
             hocr_path = os.path.join(output_dir, 'tmp.hocr')
             if not os.path.exists(hocr_path):
@@ -263,6 +271,7 @@ class Engine(common.Engine):
                         stdout=ipc.DEVNULL,
                         stderr=ipc.PIPE,
                     )
+                    worker.stderr = codecs.getreader(sys.stderr.encoding or locale.getpreferredencoding())(worker.stderr)
                     _wait_for_worker(worker)
                 with open(box_path, 'r') as box_file:
                     contents = contents.replace(

@@ -127,7 +127,7 @@ def _apply_bboxes(djvu_class, bbox_source, text, settings, page_size):
         if not m:
             return [text]
         coordinates = (int(x) for x in m.group(1).replace(',', ' ').split())
-        coordinates = zip(coordinates, coordinates, coordinates, coordinates)
+        coordinates = list(zip(coordinates, coordinates, coordinates, coordinates))
     else:
         # bboxes from an iterator
         coordinates = []
@@ -407,7 +407,7 @@ def extract_tesseract_bbox_data(node):
         if not line or line.startswith('//'):
             continue
         chars, x0, y0, x1, y1, w = line.split()
-        x0, y0, x1, y1 = map(int, (x0, y0, x1, y1))
+        x0, y0, x1, y1 = list(map(int, (x0, y0, x1, y1)))
         if chars == '~':
             chars = [None]
         w = x1 - x0
@@ -431,7 +431,7 @@ def read_document(stream, settings):
         #
         # FIXME: This work-around is ugly and should be dropped at some point.
         contents = stream.read()
-        contents = utils.sanitize_utf8(contents)
+        contents = utils.sanitize_utf8(contents.encode('UTF-8'))
         if settings.html5:
             return html5_support.parse(contents)
         else:

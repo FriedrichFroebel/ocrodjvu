@@ -46,7 +46,7 @@ def parse_page_numbers(pages):
     result = []
     for page_range in pages.split(','):
         if '-' in page_range:
-            x, y = map(int, page_range.split('-', 1))
+            x, y = list(map(int, page_range.split('-', 1)))
             result += range(x, y + 1)
         else:
             result += [int(page_range, 10)]
@@ -67,17 +67,20 @@ def smart_repr(s, encoding=None):
     if isinstance(s, str):
         return repr(s)
     try:
-        u = s.decode(encoding)
-    except UnicodeDecodeError:
+        u = s.encode(encoding)
+    except UnicodeEncodeError:
         return repr(s)
+    u = u.decode(encoding)
     u = _special_chars_replace(_special_chars_escape, u)
-    s = u.encode(encoding)
-    return "'{0}'".format(s)
+    return "'{0}'".format(u)
 
 class EncodingWarning(UserWarning):
     pass
 
-_control_characters_regex = re.compile(rb'(?![\n\r\t])\p{Cc}')
+_control_characters_regex = re.compile('[{0}]'.format(''.join(
+    ch for ch in map(chr, xrange(32))
+    if ch not in '\n\r\t'
+)).encode('UTF-8'))
 
 def sanitize_utf8(text):
     '''
