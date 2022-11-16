@@ -11,19 +11,18 @@
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 
-PYTHON = python
+PYTHON = python3
 
 PREFIX = /usr/local
 DESTDIR =
 
-bindir = $(PREFIX)/bin
-basedir = $(PREFIX)/share/ocrodjvu
 mandir = $(PREFIX)/share/man
 
-.PHONY: all
-all: ;
-
+# TODO: Start remove.
 python-exe = $(shell $(PYTHON) -c 'import sys; print(sys.executable)')
+
+bindir = $(PREFIX)/bin
+basedir = $(PREFIX)/share/ocrodjvu
 
 define install-script
 	sed \
@@ -59,9 +58,28 @@ else
 	install -m644 doc/*.1 $(DESTDIR)$(mandir)/man1/
 endif
 
+# TODO: End remove.
+
+.PHONY: all
+all: ;
+
+.PHONY: install_manpage
+install_manpage: ocrodjvu
+	$(MAKE) -C doc  # build documentation
+	install -d $(DESTDIR)$(mandir)/man1
+	install -m644 doc/$(<).1 $(DESTDIR)$(mandir)/man1/
+
+# FIXME: Fix broken `ipc.Subprocess.wait`.
 .PHONY: test
-test: ocrodjvu
-	$(PYTHON) -c 'import nose; nose.main()' --verbose
+test:
+	$(PYTHON) -W ignore:ResourceWarning -m unittest discover --start-directory tests/
+
+# FIXME: Fix broken `ipc.Subprocess.wait`.
+.PHONY: update-coverage
+update-coverage:
+	coverage erase
+	$(PYTHON) -W ignore:ResourceWarning -m coverage run -m unittest discover --start-directory tests/
+	coverage report --include=ocrodjvu/*
 
 .PHONY: clean
 clean:

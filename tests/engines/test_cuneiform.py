@@ -16,23 +16,18 @@
 import os
 import sys
 
-from tests.tools import (
-    assert_equal,
-    assert_raises,
-    assert_raises_regex,
-    interim,
-)
+from tests.tools import mock, TestCase
 
-import lib.ipc
-from lib.engines.cuneiform import (
-    Engine,
-)
+from lib.engines.cuneiform import Engine
+from lib import errors
+from lib import ipc
+
 
 here = os.path.dirname(__file__)
 here = os.path.relpath(here)
 
-class test_cuneiform():
 
+class CuneiformTestCase(TestCase):
     existing_languages = [
         ('eng', 'eng'),
         ('ger', 'deu'),
@@ -45,7 +40,7 @@ class test_cuneiform():
     fake_executable = 'fake-cuneiform'
 
     @classmethod
-    def setup_class(cls):
+    def setUpClass(cls):
         cls.engine = Engine(
             executable=os.path.join(here, cls.fake_executable)
         )
@@ -54,38 +49,44 @@ class test_cuneiform():
         if ok:
             self.engine.check_language(lang)
         else:
-            with assert_raises_regex(lib.errors.MissingLanguagePack, '^language pack for the selected language (.+) is not available$'):
+            with self.assertRaisesRegex(errors.MissingLanguagePack, '^language pack for the selected language (.+) is not available$'):
                 self.engine.check_language(lang)
 
     def test_has_language(self):
         for lang1, lang2 in self.existing_languages:
-            yield self._test_has_language, lang1, True
+            with self.subTest(lang1=lang1, ok=True):
+                self._test_has_language(lang1, True)
             if lang1 != lang2:
-                yield self._test_has_language, lang2, True
+                with self.subTest(lang2=lang2, ok=True):
+                    self._test_has_language(lang2, True)
         for lang in self.missing_languages:
-            yield self._test_has_language, lang, False
+            with self.subTest(lang=lang, ok=False):
+                self._test_has_language(lang, False)
 
     def _test_recognize(self, lang1, lang2):
         def fake_subprocess(args, *rest, **kwrest):
             # Record arguments that were used and break immediately.
-            assert_equal(args[0], self.engine.executable)
-            assert_equal(args[1], '-l')
-            assert_equal(args[2], lang1)
+            self.assertEqual(args[0], self.engine.executable)
+            self.assertEqual(args[1], '-l')
+            self.assertEqual(args[2], lang1)
             raise EOFError
-        with interim(lib.ipc, Subprocess=fake_subprocess):
-            with assert_raises(EOFError):
+
+        with mock.patch.object(ipc, 'Subprocess', fake_subprocess):
+            with self.assertRaises(EOFError):
                 with self.engine.recognize(sys.stdin, lang1):
                     pass
 
     def test_recognize(self):
         for lang1, lang2 in self.existing_languages:
-            yield self._test_recognize, lang1, lang2
+            with self.subTest(lang1=lang1, lang2=lang2):
+                self._test_recognize(lang1, lang2)
             if lang1 != lang2:
-                yield self._test_recognize, lang1, lang1
+                with self.subTest(lang1=lang1):
+                    self._test_recognize(lang1, lang1)
 
-class test_cuneiform_multilang(test_cuneiform):
 
-    existing_languages = test_cuneiform.existing_languages + [
+class CuneiformMultiLanguageTestCase(CuneiformTestCase):
+    existing_languages = CuneiformTestCase.existing_languages + [
         ('rus_cze', 'rus+ces'),
         ('rus_cze', 'ces+rus'),
     ]

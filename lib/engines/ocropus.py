@@ -27,11 +27,11 @@ class Engine(common.Engine):
     name = 'ocropus'
     image_format = image_io.PNM
 
-    executable = utils.property('ocroscript')
-    tesseract_executable = utils.property('tesseract')
-    extra_args = utils.property([], shlex.split)
-    script_name = utils.property()
-    has_charboxes = utils.property()
+    executable = utils.Property('ocroscript')
+    tesseract_executable = utils.Property('tesseract')
+    extra_args = utils.Property([], shlex.split)
+    script_name = utils.Property()
+    has_charboxes = utils.Property()
 
     def __init__(self, *args, **kwargs):
         common.Engine.__init__(self, **kwargs)

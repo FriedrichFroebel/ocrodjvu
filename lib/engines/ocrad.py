@@ -106,9 +106,9 @@ class Engine(common.Engine):
     name = 'ocrad'
     image_format = image_io.PNM
 
-    executable = utils.property('ocrad')
-    extra_args = utils.property([], shlex.split)
-    replacement_character = utils.property(u'\N{REPLACEMENT CHARACTER}', utils.str_as_unicode)
+    executable = utils.Property('ocrad')
+    extra_args = utils.Property([], shlex.split)
+    replacement_character = utils.Property('\N{REPLACEMENT CHARACTER}', utils.str_as_unicode)
 
     def __init__(self, *args, **kwargs):
         common.Engine.__init__(self, **kwargs)

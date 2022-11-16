@@ -113,8 +113,8 @@ class Engine(common.Engine):
     name = 'gocr'
     image_format = image_io.PNM
 
-    executable = utils.property('gocr')
-    extra_args = utils.property([], shlex.split)
+    executable = utils.Property('gocr')
+    extra_args = utils.Property([], shlex.split)
 
     def __init__(self, *args, **kwargs):
         common.Engine.__init__(self, *args, **kwargs)

@@ -15,169 +15,175 @@
 
 import sys
 import warnings
+from ast import literal_eval
 
-from tests.tools import (
-    assert_equal,
-    assert_greater,
-    assert_greater_equal,
-    assert_in,
-    assert_is,
-    assert_is_instance,
-    assert_is_none,
-    assert_less_equal,
-    assert_raises,
-    assert_raises_regex,
-    interim,
-)
+from tests.tools import mock, TestCase
 
-import lib.utils
-from lib.utils import (
-    EncodingWarning,
-    NotOverriddenWarning,
-    enhance_import_error,
-    identity,
-    not_overridden,
-    parse_page_numbers,
-    property,
-    sanitize_utf8,
-    smart_repr,
-    str_as_unicode,
-)
+from lib import utils
 
-class test_enhance_import():
 
+class EnhanceImportTestCase(TestCase):
     @classmethod
-    def setup_class(cls):
+    def setUpClass(cls):
+        # noinspection PyTypeChecker
         sys.modules['nonexistent'] = None
-
+    
     def test_debian(self):
-        with interim(lib.utils, debian=True):
-            with assert_raises(ImportError) as ecm:
+        with mock.patch.object(utils, 'IS_DEBIAN', True):
+            with self.assertRaises(expected_exception=ImportError) as exception_manager:
                 try:
+                    # noinspection PyUnresolvedReferences
                     import nonexistent
-                except ImportError as ex:
-                    enhance_import_error(ex, 'PyNonexistent', 'python-nonexistent', 'http://pynonexistent.example.net/')
+                except ImportError as exception:
+                    utils.enhance_import_error(
+                        exception,
+                        'PyNonexistent',
+                        'python-nonexistent',
+                        'https://pynonexistent.example.net/'
+                    )
                     raise
                 nonexistent.f()  # quieten pyflakes
-            assert_equal(str(ecm.exception),
-                'import of nonexistent halted; None in sys.modules; '
-                'please install the python-nonexistent package'
+            self.assertEqual(
+                str(exception_manager.exception),
+                (
+                    'import of nonexistent halted; None in sys.modules; '
+                    'please install the python-nonexistent package'
+                )
             )
 
-    def test_nondebian(self):
-        with interim(lib.utils, debian=False):
-            with assert_raises(ImportError) as ecm:
+    def test_non_debian(self):
+        with mock.patch.object(utils, 'IS_DEBIAN', False):
+            with self.assertRaises(expected_exception=ImportError) as exception_manager:
                 try:
+                    # noinspection PyUnresolvedReferences
                     import nonexistent
-                except ImportError as ex:
-                    enhance_import_error(ex, 'PyNonexistent', 'python-nonexistent', 'http://pynonexistent.example.net/')
+                except ImportError as exception:
+                    utils.enhance_import_error(
+                        exception,
+                        'PyNonexistent',
+                        'python-nonexistent',
+                        'https://pynonexistent.example.net/'
+                    )
                     raise
                 nonexistent.f()  # quieten pyflakes
-            assert_equal(str(ecm.exception),
-                'import of nonexistent halted; None in sys.modules; '
-                'please install the PyNonexistent package <http://pynonexistent.example.net/>'
+            self.assertEqual(
+                str(exception_manager.exception),
+                (
+                    'import of nonexistent halted; None in sys.modules; '
+                    'please install the PyNonexistent package <https://pynonexistent.example.net/>'
+                )
             )
 
-    def test_no_debian_pkg(self):
+    def test_without_debian_package_name(self):
         def t():
-            with assert_raises(ImportError) as ecm:
+            with self.assertRaises(expected_exception=ImportError) as exception_manager:
                 try:
+                    # noinspection PyUnresolvedReferences
                     import nonexistent
-                except ImportError as ex:
-                    enhance_import_error(ex, 'PyNonexistent', None, 'http://pynonexistent.example.net/')
+                except ImportError as exception:
+                    utils.enhance_import_error(
+                        exception,
+                        'PyNonexistent',
+                        None,
+                        'https://pynonexistent.example.net/'
+                    )
                     raise
                 nonexistent.f()  # quieten pyflakes
-            assert_equal(str(ecm.exception),
-                'import of nonexistent halted; None in sys.modules; '
-                'please install the PyNonexistent package <http://pynonexistent.example.net/>'
+            self.assertEqual(
+                str(exception_manager.exception),
+                (
+                    'import of nonexistent halted; None in sys.modules; '
+                    'please install the PyNonexistent package <https://pynonexistent.example.net/>'
+                )
             )
-        with interim(lib.utils, debian=False):
+
+        with mock.patch.object(utils, 'IS_DEBIAN', False):
             t()
-        with interim(lib.utils, debian=True):
+        with mock.patch.object(utils, 'IS_DEBIAN', True):
             t()
+
 
 # pylint: disable=eval-used
-class test_smart_repr():
-
-    def test_byte_string(self):
+class SmartReprTestCase(TestCase):
+    def test_string(self):
         for s in '', '\f', 'eggs', '''e'gg"s''', 'jeż', '''j'e"ż''':
-            assert_equal(eval(smart_repr(s)), s)
-
-    def test_unicode_string(self):
-        for s in u'', '\f', 'eggs', '''e'gg"s''', 'jeż', '''j'e"ż''':
-            assert_equal(eval(smart_repr(s)), s)
+            self.assertEqual(literal_eval(utils.smart_repr(s)), s)
 
     def test_encoded_string(self):
         for s in '', '\f', 'eggs', '''e'gg"s''':
-            assert_equal(eval(smart_repr(s, 'ASCII')), s)
-            assert_equal(eval(smart_repr(s, 'UTF-8')), s)
+            self.assertEqual(literal_eval(utils.smart_repr(s, 'ASCII')), s)
+            self.assertEqual(literal_eval(utils.smart_repr(s, 'UTF-8')), s)
         for s in 'jeż', '''j'e"ż''':
-            s_repr = smart_repr(s, 'ASCII')
-            assert_is_instance(s_repr, str)
-            assert_equal(eval(s_repr), s)
+            s_repr = utils.smart_repr(s, 'ASCII')
+            self.assertIsInstance(s_repr, str)
+            self.assertEqual(literal_eval(s_repr), s)
         for s in 'jeż', '''j'e"ż''':
-            s_repr = smart_repr(s, 'UTF-8')
-            assert_is_instance(s_repr, str)
-            assert_in('ż', s_repr)
-            assert_equal(eval(s_repr), s)
-# pylint: enable=eval-used
+            s_repr = utils.smart_repr(s, 'UTF-8')
+            self.assertIsInstance(s_repr, str)
+            self.assertIn('ż', s_repr)
+            self.assertEqual(literal_eval(s_repr), s)
 
-class test_parse_page_numbers():
 
+class ParsePageNumbersTestCase(TestCase):
     def test_none(self):
-        assert_is_none(parse_page_numbers(None))
+        self.assertIsNone(utils.parse_page_numbers(None))
 
     def test_single(self):
-        assert_equal(parse_page_numbers('17'), [17])
+        self.assertEqual(utils.parse_page_numbers('17'), [17])
 
     def test_range(self):
-        assert_equal(parse_page_numbers('37-42'), [37, 38, 39, 40, 41, 42])
+        self.assertEqual(utils.parse_page_numbers('37-42'), [37, 38, 39, 40, 41, 42])
 
     def test_multiple(self):
-        assert_equal(parse_page_numbers('17,37-42'), [17, 37, 38, 39, 40, 41, 42])
+        self.assertEqual(utils.parse_page_numbers('17,37-42'), [17, 37, 38, 39, 40, 41, 42])
 
     def test_bad_range(self):
-        assert_equal(parse_page_numbers('42-37'), [])
+        self.assertEqual(utils.parse_page_numbers('42-37'), [])
 
     def test_collapsed_range(self):
-        assert_equal(parse_page_numbers('17-17'), [17])
+        self.assertEqual(utils.parse_page_numbers('17-17'), [17])
 
-class test_sanitize_utf8():
 
+class SanitizeUtf8TestCase(TestCase):
     def test_control_characters(self):
         def show(message, category, filename, lineno, file=None, line=None):
-            with assert_raises_regex(EncodingWarning, '.*control character.*'):
+            with self.assertRaisesRegex(utils.EncodingWarning, '.*control character.*'):
                 raise message
+
         s = ''.join(map(chr, range(32)))
         s = s.encode('UTF-8')
         with warnings.catch_warnings():
             warnings.showwarning = show
-            t = sanitize_utf8(s).decode('UTF-8')
-        assert_equal(t,
-            '\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD'
-            '\uFFFD\t\n\uFFFD\uFFFD\r\uFFFD\uFFFD'
-            '\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD'
-            '\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD'
+            t = utils.sanitize_utf8(s).decode('UTF-8')
+        self.assertEqual(
+            t,
+            (
+                '\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD'
+                '\uFFFD\t\n\uFFFD\uFFFD\r\uFFFD\uFFFD'
+                '\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD'
+                '\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD'
+            )
         )
 
     def test_ascii(self):
         s = b'The quick brown fox jumps over the lazy dog'
         with warnings.catch_warnings():
-            warnings.filterwarnings('error', category=EncodingWarning)
-            t = sanitize_utf8(s)
-        assert_equal(s, t)
+            warnings.filterwarnings('error', category=utils.EncodingWarning)
+            t = utils.sanitize_utf8(s)
+        self.assertEqual(s, t)
 
     def test_utf8(self):
         s = 'Jeżu klątw, spłódź Finom część gry hańb'.encode('UTF-8')
         with warnings.catch_warnings():
-            warnings.filterwarnings('error', category=EncodingWarning)
-            t = sanitize_utf8(s)
-        assert_equal(s, t)
+            warnings.filterwarnings('error', category=utils.EncodingWarning)
+            t = utils.sanitize_utf8(s)
+        self.assertEqual(s, t)
 
     def test_non_utf8(self):
         def show(message, category, filename, lineno, file=None, line=None):
-            with assert_raises_regex(EncodingWarning, '.* invalid continuation byte'):
+            with self.assertRaisesRegex(utils.EncodingWarning, '.* invalid continuation byte'):
                 raise message
+
         s0 = 'Jeżu klątw, spłódź Finom część gry hańb'.encode('UTF-8')
         good = 'ó'.encode('UTF-8')
         bad = good.decode('UTF-8').encode('ISO-8859-2')
@@ -185,13 +191,13 @@ class test_sanitize_utf8():
         s2 = s0.replace(good, '\N{REPLACEMENT CHARACTER}'.encode('UTF-8'))
         with warnings.catch_warnings():
             warnings.showwarning = show
-            t = sanitize_utf8(s1)
-        assert_equal(s2, t)
+            t = utils.sanitize_utf8(s1)
+        self.assertEqual(s2, t)
 
-class test_not_overridden():
 
-    class B(object):
-        @not_overridden
+class NotOverridenTestCase(TestCase):
+    class B:
+        @utils.not_overridden
         def f(self, x, y):
             pass
 
@@ -201,87 +207,93 @@ class test_not_overridden():
 
     def test_not_overridden(self):
         def show(message, category, filename, lineno, file=None, line=None):
-            with assert_raises_regex(NotOverriddenWarning, r'^.*\bB.f[(][)] is not overridden$'):
+            with self.assertRaisesRegex(utils.NotOverriddenWarning, r'^.*\bB.f[(][)] is not overridden$'):
                 raise message
+
         with warnings.catch_warnings():
             warnings.showwarning = show
-            assert_is_none(self.B().f(6, 7))
+            self.assertIsNone(self.B().f(6, 7))
 
     def test_overridden(self):
         with warnings.catch_warnings():
-            warnings.filterwarnings('error', category=NotOverriddenWarning)
+            warnings.filterwarnings('error', category=utils.NotOverriddenWarning)
             result = self.C().f(6, 7)
-            assert_equal(result, 42)
+            self.assertEqual(result, 42)
 
-class test_str_as_unicode():
 
+class StrAsUnicodeTestCase(TestCase):
     def test_ascii(self):
         for s in '', 'eggs', u'eggs':
-            assert_equal(str_as_unicode(s), u'' + s)
-            assert_equal(str_as_unicode(s, 'UTF-8'), u'' + s)
-            assert_equal(str_as_unicode(s, 'ASCII'), u'' + s)
+            self.assertEqual(utils.str_as_unicode(s), '' + s)
+            self.assertEqual(utils.str_as_unicode(s, 'UTF-8'), '' + s)
+            self.assertEqual(utils.str_as_unicode(s, 'ASCII'), '' + s)
 
     def test_nonascii(self):
         rc = '\N{REPLACEMENT CHARACTER}'
         s = 'jeż'.encode('UTF-8')
-        assert_equal(str_as_unicode(s, 'ASCII'), 'je' + rc + rc)
-        assert_equal(str_as_unicode(s, 'UTF-8'), 'jeż')
+        self.assertEqual(utils.str_as_unicode(s, 'ASCII'), 'je' + rc + rc)
+        self.assertEqual(utils.str_as_unicode(s, 'UTF-8'), 'jeż')
 
     def test_unicode(self):
         s = 'jeż'
-        assert_equal(str_as_unicode(s), s)
-        assert_equal(str_as_unicode(s, 'ASCII'), s)
-        assert_equal(str_as_unicode(s, 'UTF-8'), s)
+        self.assertEqual(utils.str_as_unicode(s), s)
+        self.assertEqual(utils.str_as_unicode(s, 'ASCII'), s)
+        self.assertEqual(utils.str_as_unicode(s, 'UTF-8'), s)
 
-def test_identity():
-    o = object()
-    assert_is(identity(o), o)
 
-class test_property():
+class IdentityTestCase(TestCase):
+    def test_identity(self):
+        o = object()
+        self.assertIs(utils.identity(o), o)
 
+
+class PropertyTestCase(TestCase):
     @classmethod
-    def setup_class(cls):
-        class Dummy(object):
-            eggs = property()
-            ham = property(default_value=42)
+    def setUpClass(cls):
+        class Dummy:
+            eggs = utils.Property()
+            ham = utils.Property(default_value=42)
+
         cls.Dummy = Dummy
 
     def test_class(self):
         eggs = self.Dummy.eggs
         ham = self.Dummy.ham
         for obj in eggs, ham:
-            assert_is_instance(obj, property)
+            self.assertIsInstance(obj, utils.Property)
 
     def test_default_filter(self):
         dummy = self.Dummy()
-        assert_is_none(dummy.eggs)
-        assert_equal(dummy.ham, 42)
+        self.assertIsNone(dummy.eggs)
+        self.assertEqual(dummy.ham, 42)
         dummy.eggs = -4
         dummy.ham = -2
-        assert_equal(dummy.eggs, -4)
-        assert_equal(dummy.ham, -2)
+        self.assertEqual(dummy.eggs, -4)
+        self.assertEqual(dummy.ham, -2)
         dummy = self.Dummy()
-        assert_is_none(dummy.eggs)
-        assert_equal(dummy.ham, 42)
+        self.assertIsNone(dummy.eggs)
+        self.assertEqual(dummy.ham, 42)
 
-def test_get_cpu_count():
-    n = lib.utils.get_cpu_count()
-    assert_is_instance(n, int)
-    assert_greater_equal(n, 1)
 
-def test_get_thread_limit():
-    def t(nitems, njobs, xlim):
-        lim = lib.utils.get_thread_limit(nitems, njobs)
-        assert_equal(lim, xlim)
-    for nitems in range(0, 10):
-        for njobs in range(1, 10):
-            lim = lib.utils.get_thread_limit(nitems, njobs)
-            assert_is_instance(lim, int)
-            if nitems == 0:
-                assert_equal(lim, 1)
-            else:
-                npitems = min(nitems, njobs)
-                assert_less_equal(lim * npitems, njobs)
-                assert_greater((lim + 1) * npitems, njobs)
+class GetCpuCountTestCase(TestCase):
+    def test_get_cpu_count(self):
+        n = utils.get_cpu_count()
+        self.assertIsInstance(n, int)
+        self.assertGreaterEqual(n, 1)
+
+
+class GetThreadLimitTestCase(TestCase):
+    def test_get_thread_limit(self):
+        for item_count in range(0, 10):
+            for job_count in range(1, 10):
+                with self.subTest(item_count=item_count, job_count=job_count):
+                    limit = utils.get_thread_limit(item_count, job_count)
+                    self.assertIsInstance(limit, int)
+                    if item_count == 0:
+                        self.assertEqual(limit, 1)
+                    else:
+                        npitems = min(item_count, job_count)
+                        self.assertLessEqual(limit * npitems, job_count)
+                        self.assertGreater((limit + 1) * npitems, job_count)
 
 # vim:ts=4 sts=4 sw=4 et
