@@ -85,7 +85,7 @@ class CuneiformTestCase(TestCase):
 
 
 class CuneiformMultiLanguageTestCase(CuneiformTestCase):
-    existing_languages = test_cuneiform.existing_languages + [
+    existing_languages = CuneiformTestCase.existing_languages + [
         ('rus_cze', 'rus+ces'),
         ('rus_cze', 'ces+rus'),
     ]

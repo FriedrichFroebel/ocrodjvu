@@ -102,7 +102,7 @@ class Djvu2hocrTestCase(TestCase):
         self.assertEqual(expected_output, output)
 
     def test_from_file(self):
-        for test_filename in sorted_glob(os.path.join(here, '*.test[0-9]')):
+        for test_filename in sorted_glob(os.path.join(self.here, '*.test[0-9]')):
             index = int(test_filename[-1])
             base_filename = os.path.basename(test_filename[:-6])
             with self.subTest(base_filename=base_filename, index=index):
@@ -116,11 +116,14 @@ class Djvu2hocrTestCase(TestCase):
         path = os.path.join(here, '..', 'data', 'empty.djvu')
         stdout = io.StringIO()
         stderr = io.StringIO()
+        import tracemalloc
+        tracemalloc.start(10)
         with temporary.directory() as tmpdir:
             tmp_path = os.path.join(tmpdir, 'тмп.djvu')
             os.symlink(path, tmp_path)
             with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
                 rc = try_run(djvu2hocr.main, ['', tmp_path])
+        tracemalloc.stop()
         self.assertEqual(stderr.getvalue(), '')
         self.assertEqual(rc, 0)
         self.assertNotEqual(stdout.getvalue(), '')

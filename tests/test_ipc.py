@@ -72,9 +72,7 @@ class WaitTestCase(TestCase):
         with self.assertRaises(ipc.CalledProcessError) as ecm:
             child.wait()
         message = str(ecm.exception)
-        #if message[-1] == '.':  # subprocess32 >= 3.5
-            #message = message[:-1]
-        self.assertEqual(message, "Command 'false' returned non-zero exit status 1")
+        self.assertEqual(message, "Command 'false' returned non-zero exit status 1.")
 
     def _test_signal(self, name):
         child = ipc.Subprocess(['cat'], stdin=ipc.PIPE)  # Any long-standing process would do.
@@ -82,6 +80,7 @@ class WaitTestCase(TestCase):
         with self.assertRaises(ipc.CalledProcessInterrupted) as ecm:
             child.wait()
         self.assertEqual(str(ecm.exception), "Command 'cat' was interrupted by signal " + name)
+        child.stdin.close()
 
     def test_wait_signal(self):
         for name in 'SIGINT', 'SIGABRT', 'SIGSEGV':

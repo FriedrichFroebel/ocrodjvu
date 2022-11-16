@@ -65,7 +65,7 @@ class ImageIoTestCase(TestCase):
                 self.assertEqual(list(result.getdata()), list(expected.getdata()))
 
     def test_from_file(self):
-        for djvu_filename in sorted_glob(os.path.join(here, '*.djvu')):
+        for djvu_filename in sorted_glob(os.path.join(self.here, '*.djvu')):
             base_filename = os.path.basename(djvu_filename[:-5])
             for image_format in formats:
                 for bits_per_pixel in 1, 24:

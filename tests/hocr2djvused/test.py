@@ -113,7 +113,7 @@ class Hocr2djvusedTestCase(TestCase):
             for extra in ('', ' --word-segmentation=uax29')
         ]
         known_bases = set()
-        for test_filename in sorted_glob(os.path.join(here, '*.test[0-9]')):
+        for test_filename in sorted_glob(os.path.join(self.here, '*.test[0-9]')):
             index = int(test_filename[-1])
             base_filename = os.path.basename(test_filename[:-6])
             known_bases.add(base_filename)
