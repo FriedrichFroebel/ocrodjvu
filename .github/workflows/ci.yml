@@ -73,7 +73,7 @@ jobs:
         ocrodjvu --version
     - name: install man page
       run:
-        make install_manpage PREFIX=$HOME/local
+        make install_manpage PREFIX=$HOME/.local
     - name: check whether the man pages were installed correctly
       env:
         MANPATH: /home/runner/.local/share/man
