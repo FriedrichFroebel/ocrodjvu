@@ -60,7 +60,7 @@ class test_enhance_import():
                     raise
                 nonexistent.f()  # quieten pyflakes
             assert_equal(str(ecm.exception),
-                'No module named nonexistent; '
+                'import of nonexistent halted; None in sys.module; '
                 'please install the python-nonexistent package'
             )
 
@@ -74,7 +74,7 @@ class test_enhance_import():
                     raise
                 nonexistent.f()  # quieten pyflakes
             assert_equal(str(ecm.exception),
-                'No module named nonexistent; '
+                'import of nonexistent halted; None in sys.module; '
                 'please install the PyNonexistent package <http://pynonexistent.example.net/>'
             )
 
@@ -88,7 +88,7 @@ class test_enhance_import():
                     raise
                 nonexistent.f()  # quieten pyflakes
             assert_equal(str(ecm.exception),
-                'No module named nonexistent; '
+                'import of nonexistent halted; None in sys.module; '
                 'please install the PyNonexistent package <http://pynonexistent.example.net/>'
             )
         with interim(lib.utils, debian=False):
@@ -179,7 +179,7 @@ class test_sanitize_utf8():
             with assert_raises_regex(EncodingWarning, '.* invalid continuation byte'):
                 raise message
         s0 = 'Jeżu klątw, spłódź Finom część gry hańb'.encode('UTF-8')
-        good = 'ó'
+        good = 'ó'.encode('UTF-8')
         bad = good.decode('UTF-8').encode('ISO-8859-2')
         s1 = s0.replace(good, bad)
         s2 = s0.replace(good, '\N{REPLACEMENT CHARACTER}'.encode('UTF-8'))
