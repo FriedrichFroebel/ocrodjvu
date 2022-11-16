@@ -76,7 +76,7 @@ class OcrodjvuTestCase(TestCase):
         self.assertNotEqual(stdout.getvalue(), '')
 
     def test_list_languages(self):
-        self.test_list_engines(self)
+        self.test_list_engines()
         self.assertTrue(self.engines)
         for engine in engines:
             with self.subTest(engine=engine):

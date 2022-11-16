@@ -67,7 +67,7 @@ class ImageIoTestCase(TestCase):
     def test_from_file(self):
         for djvu_filename in sorted_glob(os.path.join(self.here, '*.djvu')):
             base_filename = os.path.basename(djvu_filename[:-5])
-            for image_format in formats:
+            for image_format in self.formats:
                 for bits_per_pixel in 1, 24:
                     with self.subTest(base_filename=base_filename, image_format=image_format, bpp=bits_per_pixel):
                         self._test_from_file(base_filename=base_filename, image_format=image_format(bits_per_pixel))

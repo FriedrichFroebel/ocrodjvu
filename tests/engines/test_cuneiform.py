@@ -19,6 +19,7 @@ import sys
 from tests.tools import mock, TestCase
 
 from lib.engines.cuneiform import Engine
+from lib import errors
 from lib import ipc
 
 
@@ -48,7 +49,7 @@ class CuneiformTestCase(TestCase):
         if ok:
             self.engine.check_language(lang)
         else:
-            with self.assertRaisesRegex(lib.errors.MissingLanguagePack, '^language pack for the selected language (.+) is not available$'):
+            with self.assertRaisesRegex(errors.MissingLanguagePack, '^language pack for the selected language (.+) is not available$'):
                 self.engine.check_language(lang)
 
     def test_has_language(self):

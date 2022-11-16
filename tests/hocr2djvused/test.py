@@ -71,7 +71,7 @@ class Hocr2djvusedTestCase(TestCase):
         return cls._djvused_text_re.sub(cls.normalize_sexpr, script)
 
     def _test_from_file(self, base_filename, index, extra_args):
-        base_filename = os.path.join(here, base_filename)
+        base_filename = os.path.join(self.here, base_filename)
         test_filename = '{base}.test{i}'.format(base=base_filename, i=index)
         html_filename = '{base}.html'.format(base=base_filename)
         with open(test_filename, 'rb') as fd:
@@ -95,7 +95,7 @@ class Hocr2djvusedTestCase(TestCase):
         if base_filename.endswith(('cuneiform0.7', 'cuneiform0.8')):
             # Add dummy page-size information.
             args += ['--page-size=1000x1000']
-        base_filename = os.path.join(here, base_filename)
+        base_filename = os.path.join(self.here, base_filename)
         html_filename = '{base}.html'.format(base=base_filename)
         with contextlib.closing(io.BytesIO()) as output_file:
             with open(html_filename, 'rb') as html_file:
@@ -120,7 +120,7 @@ class Hocr2djvusedTestCase(TestCase):
             for extra_args in '', '--html5':
                 with self.subTest(base_filename=base_filename, index=index, extra_args=extra_args):
                     self._test_from_file(base_filename, index, extra_args)
-        for html_filename in sorted_glob(os.path.join(here, '*.html')):
+        for html_filename in sorted_glob(os.path.join(self.here, '*.html')):
             # For HTML files that have no corresponding .test* files, we just check
             # if they won't trigger any exception.
             base_filename = os.path.basename(html_filename[:-5])
