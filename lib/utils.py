@@ -78,7 +78,7 @@ class EncodingWarning(UserWarning):
     pass
 
 _control_characters_regex = re.compile('[{0}]'.format(''.join(
-    ch for ch in map(chr, xrange(32))
+    ch for ch in map(chr, range(32))
     if ch not in '\n\r\t'
 )).encode('UTF-8'))
 

@@ -73,7 +73,7 @@ def _test_from_file(base_filename, index):
     with open(test_filename, 'rb') as file:
         commandline = file.readline()
         expected_output = file.read()
-    args = shlex.split(commandline)
+    args = shlex.split(commandline.decode('UTF-8'))
     assert_equal(args[0], '#')
     with temporary.directory() as tmpdir:
         djvu_filename = os.path.join(tmpdir, 'empty.djvu')
@@ -84,7 +84,7 @@ def _test_from_file(base_filename, index):
         ipc.Subprocess(['djvused', '-f', djvused_filename, '-s', djvu_filename]).wait()
         xml_filename = os.path.join(tmpdir, 'output.html')
         with open(xml_filename, 'w+b') as xml_file:
-            xmllint = ipc.Subprocess(['xmllint', '--format', '-'], stdin=ipc.PIPE, stdout=xml_file)
+            xmllint = ipc.Subprocess(['xmllint', '--format', '-'], stdin=ipc.PIPE, stdout=xml_file, encoding='UTF-8')
             try:
                 with open(os.devnull, 'w') as null:
                     with interim(sys, stdout=xmllint.stdin, stderr=null):
@@ -101,7 +101,7 @@ def _test_from_file(base_filename, index):
             assert_equal(rc, 0)
             xml_file.seek(0)
             output = xml_file.read()
-    assert_multi_line_equal(expected_output, output)
+    assert_equal(expected_output, output)
 
 def test_from_file():
     for test_filename in sorted_glob(os.path.join(here, '*.test[0-9]')):
