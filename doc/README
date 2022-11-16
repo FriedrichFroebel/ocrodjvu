@@ -52,7 +52,7 @@ The following software is required to run ocrodjvu:
 
 * DjVuLibre_ ≥ 3.5.21
 
-* python-djvulibre_
+* python-djvulibre_ ≥ 0.4
 
 * lxml_ ≥ 2.0
 

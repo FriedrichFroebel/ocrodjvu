@@ -84,7 +84,7 @@ class EnhanceImportTestCase(TestCase):
                     utils.enhance_import_error(
                         exception,
                         'PyNonexistent',
-                        '',
+                        None,
                         'https://pynonexistent.example.net/'
                     )
                     raise

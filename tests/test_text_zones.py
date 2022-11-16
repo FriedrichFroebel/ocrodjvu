@@ -14,27 +14,20 @@
 # for more details.
 
 import io
-import distutils.version
 
-from tests.tools import (
-    assert_equal,
-)
+from tests.tools import TestCase
 
 from lib import text_zones
 
-V = distutils.version.LooseVersion
-python_djvulibre_version = V(text_zones.decode.__version__)
 
-def test_print_sexpr():
-    inp = 'jeż'
-    if python_djvulibre_version < V('0.4'):
-        out = r'"je\305\274"'
-    else:
+class PrintSexprTestCase(TestCase):
+    def test_print_sexpr(self):
+        inp = 'jeż'
         out = '"jeż"'
-    fp = io.StringIO()
-    expr = text_zones.sexpr.Expression(inp)
-    text_zones.print_sexpr(expr, fp)
-    fp.seek(0)
-    assert_equal(fp.getvalue(), out)
+        fp = io.StringIO()
+        expr = text_zones.sexpr.Expression(inp)
+        text_zones.print_sexpr(expr, fp)
+        fp.seek(0)
+        self.assertEqual(fp.getvalue(), out)
 
 # vim:ts=4 sts=4 sw=4 et
