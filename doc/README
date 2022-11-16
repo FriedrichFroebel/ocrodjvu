@@ -1,8 +1,7 @@
 Overview
 ========
 
-**ocrodjvu** is a wrapper for OCR systems
-that allows you to perform OCR on DjVu_ files.
+**ocrodjvu** is a wrapper for OCR systems that allows you to perform OCR on DjVu_ files.
 
 .. _DjVu:
    http://djvu.org/
@@ -44,7 +43,6 @@ The following software is required to run ocrodjvu:
 
 * an OCR engine:
 
-  + OCRopus_ 0.2, 0.3 or 0.3.1
   + Cuneiform_ ≥ 0.7
   + Ocrad_ ≥ 0.10
   + GOCR_ ≥ 0.40
@@ -64,8 +62,7 @@ Additionally, some optional features require the following software:
 * html5lib_ —
   required for the ``--html5`` option
 
-The following software is required to rebuild the manual pages from
-source:
+The following software is required to rebuild the manual pages from source:
 
 * xsltproc_
 
@@ -74,8 +71,6 @@ source:
 
 .. _Python:
    https://www.python.org/
-.. _OCRopus:
-   https://code.google.com/p/ocropus/
 .. _Cuneiform:
    https://launchpad.net/cuneiform-linux
 .. _Ocrad:
