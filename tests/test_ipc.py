@@ -69,7 +69,7 @@ class WaitTestCase(TestCase):
 
     def test1(self):
         child = ipc.Subprocess(['false'])
-        with assert_raises(ipc.CalledProcessError) as ecm:
+        with self.assertRaises(ipc.CalledProcessError) as ecm:
             child.wait()
         message = str(ecm.exception)
         #if message[-1] == '.':  # subprocess32 >= 3.5
@@ -86,7 +86,10 @@ class WaitTestCase(TestCase):
     def test_wait_signal(self):
         for name in 'SIGINT', 'SIGABRT', 'SIGSEGV':
             with self.subTest(name=name):
+                import tracemalloc
+                tracemalloc.start(10)
                 self._test_signal(name)
+                tracemalloc.stop()
 
 
 class EnvironmentTestCase(TestCase):

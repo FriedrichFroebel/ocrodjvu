@@ -25,109 +25,109 @@ import djvu.sexpr
 from lib import errors
 from lib.cli import hocr2djvused
 
-from tests.tools import (
-    assert_equal,
-    assert_multi_line_equal,
-    assert_not_equal,
-    interim,
-    sorted_glob,
-    try_run,
-)
+from tests.tools import mock, sorted_glob, try_run, TestCase
 
-here = os.path.dirname(__file__)
-here = os.path.relpath(here)
 
-def test_help():
-    stdout = io.StringIO()
-    stderr = io.StringIO()
-    with interim(sys, stdout=stdout, stderr=stderr):
-        rc = try_run(hocr2djvused.main, ['', '--help'])
-    assert_equal(stderr.getvalue(), '')
-    assert_equal(rc, 0)
-    assert_not_equal(stdout.getvalue(), '')
+class Hocr2djvusedTestCase(TestCase):
+    here = os.path.dirname(__file__)
+    here = os.path.relpath(here)
 
-def test_version():
-    # https://bugs.debian.org/573496
-    stdout = io.StringIO()
-    stderr = io.StringIO()
-    with interim(sys, stdout=stdout, stderr=stderr):
-        rc = try_run(hocr2djvused.main, ['', '--version'])
-    assert_equal(stderr.getvalue(), '')
-    assert_equal(rc, 0)
-    assert_not_equal(stdout.getvalue(), '')
+    def test_help(self):
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+            rc = try_run(hocr2djvused.main, ['', '--help'])
+        self.assertEqual(stderr.getvalue(), '')
+        self.assertEqual(rc, 0)
+        self.assertNotEqual(stdout.getvalue(), '')
 
-def test_bad_options():
-    stdout = io.StringIO()
-    stderr = io.StringIO()
-    with interim(sys, stdout=stdout, stderr=stderr):
-        rc = try_run(hocr2djvused.main, ['', '--bad-option'])
-    assert_equal(rc, errors.EXIT_FATAL)
-    assert_not_equal(stderr.getvalue(), '')
-    assert_equal(stdout.getvalue(), '')
+    def test_version(self):
+        # https://bugs.debian.org/573496
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+            rc = try_run(hocr2djvused.main, ['', '--version'])
+        self.assertEqual(stderr.getvalue(), '')
+        self.assertEqual(rc, 0)
+        self.assertNotEqual(stdout.getvalue(), '')
 
-def normalize_sexpr(match):
-    return djvu.sexpr.Expression.from_string(match.group(1)).as_string(width=80)
+    def test_bad_options(self):
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+            rc = try_run(hocr2djvused.main, ['', '--bad-option'])
+        self.assertEqual(rc, errors.EXIT_FATAL)
+        self.assertNotEqual(stderr.getvalue(), '')
+        self.assertEqual(stdout.getvalue(), '')
 
-_djvused_text_re = re.compile('^([(].*)(?=^[.]$)', flags=(re.MULTILINE | re.DOTALL))
-def normalize_djvused(script):
-    return _djvused_text_re.sub(normalize_sexpr, script)
+    @classmethod
+    def normalize_sexpr(cls, match):
+        return djvu.sexpr.Expression.from_string(match.group(1)).as_string(width=80)
 
-def _test_from_file(base_filename, index, extra_args):
-    base_filename = os.path.join(here, base_filename)
-    test_filename = '{base}.test{i}'.format(base=base_filename, i=index)
-    html_filename = '{base}.html'.format(base=base_filename)
-    with open(test_filename, 'rb') as file:
-        commandline = file.readline()
-        expected_output = file.read()
-    args = shlex.split(commandline) + shlex.split(extra_args)
-    assert_equal(args[0], '#')
-    with contextlib.closing(io.BytesIO()) as output_file:
-        with open(html_filename, 'rb') as html_file:
-            with interim(sys, stdin=html_file, stdout=output_file):
-                rc = try_run(hocr2djvused.main, args)
-        assert_equal(rc, 0)
-        output = output_file.getvalue()
-    assert_multi_line_equal(
-        normalize_djvused(expected_output),
-        normalize_djvused(output)
-    )
+    _djvused_text_re = re.compile('^([(].*)(?=^[.]$)', flags=(re.MULTILINE | re.DOTALL))
 
-def _rough_test_from_file(base_filename, args):
-    args = ['#'] + shlex.split(args)
-    if base_filename.endswith(('cuneiform0.7', 'cuneiform0.8')):
-        # Add dummy page-size information
-        args += ['--page-size=1000x1000']
-    base_filename = os.path.join(here, base_filename)
-    html_filename = '{base}.html'.format(base=base_filename)
-    with contextlib.closing(io.BytesIO()) as output_file:
-        with open(html_filename, 'rb') as html_file:
-            with interim(sys, stdin=html_file, stdout=output_file):
-                rc = try_run(hocr2djvused.main, args)
-        assert_equal(rc, 0)
-        output = output_file.getvalue()
-    assert_not_equal(output, '')
+    @classmethod
+    def normalize_djvused(cls, script):
+        return cls._djvused_text_re.sub(cls.normalize_sexpr, script)
 
-def test_from_file():
-    rough_test_args = ['--details=lines']
-    rough_test_args += [
-        '--details={0}'.format(details) + extra
-        for details in ('words', 'chars')
-        for extra in ('', ' --word-segmentation=uax29')
-    ]
-    known_bases = set()
-    for test_filename in sorted_glob(os.path.join(here, '*.test[0-9]')):
-        index = int(test_filename[-1])
-        base_filename = os.path.basename(test_filename[:-6])
-        known_bases.add(base_filename)
-        for extra_args in '', '--html5':
-            yield _test_from_file, base_filename, index, extra_args
-    for html_filename in sorted_glob(os.path.join(here, '*.html')):
-        # For HTML files that have no corresponding .test* files, we just check
-        # if they won't trigger any exception.
-        base_filename = os.path.basename(html_filename[:-5])
-        for args in rough_test_args:
-            if base_filename not in known_bases:
-                for extra_args in '', ' --html5':
-                    yield _rough_test_from_file, base_filename, args + extra_args
+    def _test_from_file(self, base_filename, index, extra_args):
+        base_filename = os.path.join(here, base_filename)
+        test_filename = '{base}.test{i}'.format(base=base_filename, i=index)
+        html_filename = '{base}.html'.format(base=base_filename)
+        with open(test_filename, 'rb') as fd:
+            commandline = fd.readline()
+            expected_output = fd.read()
+        args = shlex.split(commandline) + shlex.split(extra_args)
+        self.assertEqual(args[0], '#')
+        with contextlib.closing(io.BytesIO()) as output_file:
+            with open(html_filename, 'rb') as html_file:
+                with mock.patch('sys.stdin', html_file), contextlib.redirect_stdout(output_file):
+                    rc = try_run(hocr2djvused.main, args)
+            self.assertEqual(rc, 0)
+            output = output_file.getvalue()
+        self.assertMultiLineEqual(
+            self.normalize_djvused(expected_output),
+            self.normalize_djvused(output)
+        )
+
+    def _rough_test_from_file(self, base_filename, args):
+        args = ['#'] + shlex.split(args)
+        if base_filename.endswith(('cuneiform0.7', 'cuneiform0.8')):
+            # Add dummy page-size information.
+            args += ['--page-size=1000x1000']
+        base_filename = os.path.join(here, base_filename)
+        html_filename = '{base}.html'.format(base=base_filename)
+        with contextlib.closing(io.BytesIO()) as output_file:
+            with open(html_filename, 'rb') as html_file:
+                with mock.patch('sys.stdin', html_file), contextlib.redirect_stdout(output_file):
+                    rc = try_run(hocr2djvused.main, args)
+            self.assertEqual(rc, 0)
+            output = output_file.getvalue()
+        self.assertNotEqual(output, '')
+
+    def test_from_file(self):
+        rough_test_args = ['--details=lines']
+        rough_test_args += [
+            '--details={0}'.format(details) + extra
+            for details in ('words', 'chars')
+            for extra in ('', ' --word-segmentation=uax29')
+        ]
+        known_bases = set()
+        for test_filename in sorted_glob(os.path.join(here, '*.test[0-9]')):
+            index = int(test_filename[-1])
+            base_filename = os.path.basename(test_filename[:-6])
+            known_bases.add(base_filename)
+            for extra_args in '', '--html5':
+                with self.subTest(base_filename=base_filename, index=index, extra_args=extra_args):
+                    self._test_from_file(base_filename, index, extra_args)
+        for html_filename in sorted_glob(os.path.join(here, '*.html')):
+            # For HTML files that have no corresponding .test* files, we just check
+            # if they won't trigger any exception.
+            base_filename = os.path.basename(html_filename[:-5])
+            for args in rough_test_args:
+                if base_filename not in known_bases:
+                    for extra_args in '', ' --html5':
+                        with self.subTest(base_filename=base_filename, args=args + extra_args):
+                            self._rough_test_from_file(base_filename, args + extra_args)
 
 # vim:ts=4 sts=4 sw=4 et

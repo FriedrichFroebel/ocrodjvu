@@ -212,7 +212,7 @@ class NotOverridenTestCase(TestCase):
 
         with warnings.catch_warnings():
             warnings.showwarning = show
-            assert_is_none(self.B().f(6, 7))
+            self.assertIsNone(self.B().f(6, 7))
 
     def test_overridden(self):
         with warnings.catch_warnings():
