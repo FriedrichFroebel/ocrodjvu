@@ -15,7 +15,6 @@
 
 import codecs
 import contextlib
-import functools
 import glob
 import locale
 import logging
@@ -61,6 +60,7 @@ def try_run(f, *args, **kwargs):
     else:
         return 0
 
+
 def sorted_glob(*args, **kwargs):
     return sorted(glob.iglob(*args, **kwargs))
 
@@ -82,14 +82,13 @@ def require_locale_encoding(encoding):
     locale_encoding = locale.getpreferredencoding()
     locale_encoding = codecs.lookup(locale_encoding).name
     if req_encoding != locale_encoding:
-        raise SkipTest('locale encoding {enc} is required'.format(enc=encoding))
+        raise SkipTest(f'locale encoding {encoding} is required')
 
 
 __all__ = [
     'mock',
     'TestCase',
     'SkipTest',
-    'interim',
     'interim_environ',
     'remove_logging_handlers',
     'require_locale_encoding',

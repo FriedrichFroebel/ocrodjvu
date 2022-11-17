@@ -15,8 +15,9 @@
 
 import pkgutil
 
+
 def get_engines():
-    for importer, name, ispkg in pkgutil.iter_modules(__path__):
+    for importer, name, is_pkg in pkgutil.iter_modules(__path__):
         this_module = __import__('', globals=globals(), fromlist=(name,), level=1)
         engine = getattr(this_module, name).Engine
         if engine.name is None:

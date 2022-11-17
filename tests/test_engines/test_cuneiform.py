@@ -23,8 +23,8 @@ from ocrodjvu import ipc
 from tests.tools import mock, TestCase
 
 
-here = os.path.dirname(__file__)
-here = os.path.relpath(here)
+HERE = os.path.dirname(__file__)
+HERE = os.path.relpath(HERE)
 
 
 class CuneiformTestCase(TestCase):
@@ -42,14 +42,14 @@ class CuneiformTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.engine = Engine(
-            executable=os.path.join(here, cls.fake_executable)
+            executable=os.path.join(HERE, cls.fake_executable)
         )
 
     def _test_has_language(self, lang, ok):
         if ok:
             self.engine.check_language(lang)
         else:
-            with self.assertRaisesRegex(errors.MissingLanguagePack, '^language pack for the selected language (.+) is not available$'):
+            with self.assertRaisesRegex(errors.MissingLanguagePackError, '^language pack for the selected language (.+) is not available$'):
                 self.engine.check_language(lang)
 
     def test_has_language(self):

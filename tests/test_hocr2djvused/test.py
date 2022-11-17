@@ -18,7 +18,6 @@ import io
 import os
 import re
 import shlex
-import sys
 import warnings
 
 import djvu.sexpr

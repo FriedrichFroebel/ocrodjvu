@@ -18,9 +18,12 @@ import functools
 import shutil
 import tempfile as raw
 
+
 file = functools.partial(raw.NamedTemporaryFile, prefix='ocrodjvu.')
 name = functools.partial(raw.mktemp, prefix='ocrodjvu.')
+# noinspection PyUnresolvedReferences,PyProtectedMember
 wrapper = raw._TemporaryFileWrapper
+
 
 @contextlib.contextmanager
 def directory(*args, **kwargs):
@@ -31,6 +34,7 @@ def directory(*args, **kwargs):
         yield tmpdir
     finally:
         shutil.rmtree(tmpdir)
+
 
 __all__ = ['raw', 'file', 'directory', 'name', 'wrapper']
 

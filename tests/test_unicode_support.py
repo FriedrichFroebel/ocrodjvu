@@ -18,15 +18,15 @@ from ocrodjvu.unicode_support import get_icu, simple_word_break_iterator, word_b
 from tests.tools import TestCase
 
 
-text = '\u201CJekyll,\u201D cried Utterson, with a\xa0loud voice, \u201CI demand to see you.\u201D'
+TEXT = '\u201CJekyll,\u201D cried Utterson, with a\xa0loud voice, \u201CI demand to see you.\u201D'
 
 
 class SimpleWordBreakIteratorTestCase(TestCase):
     def test_non_empty(self):
-        t = list(simple_word_break_iterator(text))
+        t = list(simple_word_break_iterator(TEXT))
         s = [9, 10, 15, 16, 25, 26, 30, 31, 32, 33, 37, 38, 44, 45, 47, 48, 54, 55, 57, 58, 61, 62, 67]
         self.assertEqual(t, s)
-        self.assertEqual(s[-1], len(text))
+        self.assertEqual(s[-1], len(TEXT))
 
     def test_empty(self):
         t = list(simple_word_break_iterator(''))
@@ -35,10 +35,10 @@ class SimpleWordBreakIteratorTestCase(TestCase):
 
 class WordBreakIteratorTestCase(TestCase):
     def test_nolocale(self):
-        t = list(word_break_iterator(text))
+        t = list(word_break_iterator(TEXT))
         s = [9, 10, 15, 16, 25, 26, 30, 31, 32, 33, 37, 38, 44, 45, 47, 48, 54, 55, 57, 58, 61, 62, 67]
         self.assertEqual(t, s)
-        self.assertEqual(s[-1], len(text))
+        self.assertEqual(s[-1], len(TEXT))
 
     def test_nolocale_empty(self):
         t = list(word_break_iterator(''))
@@ -47,14 +47,16 @@ class WordBreakIteratorTestCase(TestCase):
     def test_en(self):
         icu = get_icu()
         self.assertIsNotNone(icu)
-        t = list(word_break_iterator(text, icu.Locale('en')))
+        t = list(word_break_iterator(TEXT, icu.Locale('en')))
         s = [1, 7, 8, 9, 10, 15, 16, 24, 25, 26, 30, 31, 32, 33, 37, 38, 43, 44, 45, 46, 47, 48, 54, 55, 57, 58, 61, 62, 65, 66, 67]
         self.assertEqual(t, s)
-        self.assertEqual(s[-1], len(text))
+        self.assertEqual(s[-1], len(TEXT))
 
     def test_en_simple(self):
+        """
         # Trigger reference-counting bug that was fixed in PyICU 1.0.1:
         # https://github.com/ovalhub/pyicu/commit/515e076682e29d806aeb5f6b1016b799d03d92a9
+        """
         icu = get_icu()
         self.assertIsNotNone(icu)
         t = list(word_break_iterator('eggs', icu.Locale('en')))

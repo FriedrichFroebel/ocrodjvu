@@ -18,7 +18,6 @@ import io
 import os
 import shlex
 import shutil
-import sys
 
 from ocrodjvu import ipc
 from ocrodjvu import errors
@@ -26,7 +25,6 @@ from ocrodjvu import temporary
 from ocrodjvu.cli import djvu2hocr
 
 from tests.tools import mock, remove_logging_handlers, require_locale_encoding, sorted_glob, try_run, TestCase
-
 
 
 class Djvu2hocrTestCase(TestCase):
@@ -65,7 +63,7 @@ class Djvu2hocrTestCase(TestCase):
 
     def _test_from_file(self, base_filename, index):
         base_filename = os.path.join(self.here, base_filename)
-        test_filename = '{base}.test{i}'.format(base=base_filename, i=index)
+        test_filename = f'{base_filename}.test{index}'
         djvused_filename = base_filename + '.djvused'
         with open(test_filename, 'rb') as fd:
             commandline = fd.readline()
@@ -86,7 +84,7 @@ class Djvu2hocrTestCase(TestCase):
                 try:
                     with open(os.devnull, 'w') as null:
                         with mock.patch('sys.stdout', xmllint.stdin), mock.patch('sys.stderr', null):
-                            with mock.patch.object(djvu2hocr.logger, 'handlers', []):
+                            with mock.patch.object(djvu2hocr.LOGGER, 'handlers', []):
                                 rc = try_run(djvu2hocr.main, args)
                 finally:
                     xmllint.stdin.close()
@@ -109,7 +107,7 @@ class Djvu2hocrTestCase(TestCase):
                 self._test_from_file(base_filename, index)
 
     def test_nonascii_path(self):
-        require_locale_encoding('UTF-8')  # djvused breaks otherwise
+        require_locale_encoding('UTF-8')  # djvused breaks otherwise.
         remove_logging_handlers('ocrodjvu.')
         here = os.path.dirname(__file__)
         here = os.path.abspath(here)

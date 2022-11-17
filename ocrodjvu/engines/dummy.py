@@ -17,8 +17,8 @@ from ocrodjvu.engines import common
 from ocrodjvu import image_io
 from ocrodjvu import text_zones
 
-class Engine(common.Engine):
 
+class Engine(common.Engine):
     name = '_dummy'
     image_format = image_io.PNM
 
@@ -29,7 +29,7 @@ class Engine(common.Engine):
         return []
 
     def recognize(self, image, language, details=None, uax29=None):
-        return common.Output('', format='dummy')
+        return common.Output('', format_='dummy')
 
     def extract_text(self, stream, **kwargs):
         bbox = text_zones.BBox(0, 0, 0, 0)

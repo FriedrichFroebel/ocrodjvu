@@ -23,7 +23,7 @@ ISO 639-2 support
 # Machine-readable code list:
 # https://www.loc.gov/standards/iso639-2/ISO-639-2_utf-8.txt
 
-_b_to_t = {
+_B_TO_T = {
     'alb': 'sqi',
     'arm': 'hye',
     'baq': 'eus',
@@ -46,6 +46,7 @@ _b_to_t = {
     'wel': 'cym',
 }
 
+
 def b_to_t(lang, permissive=False):
     """
     Convert from ISO 639-2/B to 639-2/T.
@@ -57,6 +58,6 @@ def b_to_t(lang, permissive=False):
             raise ValueError(lang)
         else:
             return lang
-    return _b_to_t.get(lang, lang)
+    return _B_TO_T.get(lang, lang)
 
 # vim:ts=4 sts=4 sw=4 et

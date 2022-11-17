@@ -31,11 +31,13 @@ except ImportError as ex:  # no coverage
     utils.enhance_import_error(ex, 'python-djvulibre', None, 'https://jwilk.net/software/python-djvulibre')
     raise
 
+
 TEXT_DETAILS_LINE = const.TEXT_ZONE_LINE
 TEXT_DETAILS_WORD = const.TEXT_ZONE_WORD
 TEXT_DETAILS_CHARACTER = const.TEXT_ZONE_CHARACTER
 
-class BBox(object):
+
+class BBox:
 
     def __init__(self, x0=None, y0=None, x1=None, y1=None):
         self._coordinates = [x0, y0, x1, y1]
@@ -80,13 +82,15 @@ class BBox(object):
             elif i > 1 and bbox[i] is not None and self[i] < bbox[i]:
                 self._coordinates[i] = bbox[i]
 
-class Space(object):
+
+class Space:
     pass
 
-class Zone(object):
 
-    def __init__(self, type, bbox=None, children=()):
-        self.type = type
+class Zone:
+
+    def __init__(self, type_, bbox=None, children=()):
+        self.type = type_
         self.bbox = bbox
         self.children = list(children)
 
@@ -120,8 +124,7 @@ class Zone(object):
         assert x0 < x1
         assert y0 < y1
         return sexpr.Expression(
-            [self.type, x0, y0, x1, y1] +
-            children
+            [self.type, x0, y0, x1, y1] + children
         )
 
     def __iter__(self):
@@ -141,19 +144,14 @@ class Zone(object):
         return len(self.children)
 
     def __repr__(self):
-        return '{cls}(type={tp}, bbox={bbox!r}, children={chld!r})'.format(
-            cls=type(self).__name__,
-            tp=self.type,
-            bbox=self.bbox,
-            chld=self.children,
-        )
+        return f'{type(self).__name__}(type={self.type}, bbox={self.bbox!r}, children={self.children!r})'
 
     def rotate(self, rotation, xform=None):
         for x in self.bbox:
             assert x is not None
         if xform is None:
             assert self.type == const.TEXT_ZONE_PAGE, (
-                'the exterior zone is {tp} rather than {pg}'.format(tp=self.type, pg=const.TEXT_ZONE_PAGE)
+                f'the exterior zone is {self.type} rather than {const.TEXT_ZONE_PAGE}'
             )
             assert self.bbox[:2] == (0, 0), (
                 'top-left page corner is ({0}, {1}) rather than (0, 0)'.format(*self.bbox[:2])
@@ -177,12 +175,13 @@ class Zone(object):
             if isinstance(child, Zone):
                 child.rotate(rotation, xform)
 
+
 def group_words(zones, details, word_break_iterator):
     text = str.join('', (z[0] for z in zones))
     if details > TEXT_DETAILS_WORD:
-        # One zone per line
+        # One zone per line.
         return [text]
-    # One zone per word
+    # One zone per word.
     split_zones = []
     for zone in zones:
         zone_text = zone[0]
@@ -210,18 +209,19 @@ def group_words(zones, details, word_break_iterator):
         bbox = BBox()
         for k in range(i, j):
             bbox.update(zones[k].bbox)
-        last_word = Zone(type=const.TEXT_ZONE_WORD, bbox=bbox)
+        last_word = Zone(type_=const.TEXT_ZONE_WORD, bbox=bbox)
         words += [last_word]
         if details > TEXT_DETAILS_CHARACTER:
             last_word += [subtext]
         else:
             last_word += [
-                Zone(type=const.TEXT_ZONE_CHARACTER, bbox=(x0, y0, x1, y1), children=[ch])
+                Zone(type_=const.TEXT_ZONE_CHARACTER, bbox=(x0, y0, x1, y1), children=[ch])
                 for k in range(i, j)
                 for (x0, y0, x1, y1), ch in [(zones[k].bbox, text[k])]
             ]
         i = j
     return words
+
 
 def print_sexpr(expr, file, width=None):
     return expr.print_into(file, width=width, escape_unicode=False)

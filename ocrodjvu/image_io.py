@@ -23,8 +23,8 @@ except ImportError as ex:
     utils.enhance_import_error(ex, 'python-djvulibre', 'python-djvu', 'https://jwilk.net/software/python-djvulibre')
     raise
 
-class ImageFormat(object):
 
+class ImageFormat:
     extension = None
 
     _rgb = 'RGB'
@@ -40,7 +40,7 @@ class ImageFormat(object):
             pixel_format.rows_top_to_bottom = 1
             pixel_format.y_top_to_bottom = 1
         else:
-            raise NotImplementedError('Cannot output {0}-bpp images'.format(bpp))
+            raise NotImplementedError(f'Cannot output {bpp}-bpp images')
         self._pixel_format = pixel_format
 
     @utils.not_overridden
@@ -48,14 +48,15 @@ class ImageFormat(object):
         raise NotImplementedError('Cannot output images in this format')
 
     def __repr__(self):
-        return '{mod}.{cls}({bpp})'.format(mod=self.__module__, cls=type(self).__name__, bpp=self.bpp)
+        return f'{self.__module__}.{type(self).__name__}({self.bpp})'
+
 
 class PNM(ImageFormat):
     """
     Raw PBM[0] or raw PPM[1].
 
-    [0] http://netpbm.sourceforge.net/doc/ppm.html
-    [1] http://netpbm.sourceforge.net/doc/pbm.html
+    [0] https://netpbm.sourceforge.net/doc/ppm.html
+    [1] https://netpbm.sourceforge.net/doc/pbm.html
     """
 
     extension = 'pnm'
@@ -80,6 +81,7 @@ class PNM(ImageFormat):
             self._pixel_format
         )
         file.write(data)
+
 
 class BMP(ImageFormat):
     """
@@ -108,13 +110,15 @@ class BMP(ImageFormat):
         )
         n_palette_colors = 2 * (self._pixel_format.bpp == 1)
         headers_size = 54 + 4 * n_palette_colors
-        file.write(struct.pack('<ccIHHI',
+        file.write(struct.pack(
+            '<ccIHHI',
             b'B', b'M',  # magic
             len(data) + headers_size,  # whole file size
             0, 0,  # identification magic
             headers_size  # offset to pixel data
         ))
-        file.write(struct.pack('<IIIHHIIIIII',
+        file.write(struct.pack(
+            '<IIIHHIIIIII',
             40,  # size of this header
             size[0], size[1],  # image size in pixels
             1,  # number of color planes
@@ -130,6 +134,7 @@ class BMP(ImageFormat):
             file.write(struct.pack('<BBBB', 0xFF, 0xFF, 0xFF, 0))
             file.write(struct.pack('<BBBB', 0, 0, 0, 0))
         file.write(data)
+
 
 class TIFF(ImageFormat):
     """
@@ -156,7 +161,7 @@ class TIFF(ImageFormat):
             interp = 2
             spp = 3
         else:
-            raise NotImplementedError('Cannot output {0}-bpp images'.format(self._pixel_format.bpp))
+            raise NotImplementedError(f'Cannot output {self._pixel_format.bpp}-bpp images')
         n_tags = 9
         data_offset = 28 + n_tags * 12
         header = []

@@ -15,13 +15,17 @@
 
 from ocrodjvu import utils
 
+
 def parse(stream):
     try:
+        # Support is optional.
+        # noinspection PyPackageRequirements
         import html5lib
     except ImportError as ex:  # no coverage
         utils.enhance_import_error(ex, 'html5lib', 'python-html5lib', 'https://github.com/html5lib/html5lib-python')
         raise
-    return html5lib.parse(stream,
+    return html5lib.parse(
+        stream,
         treebuilder='lxml',
         namespaceHTMLElements=False
     )

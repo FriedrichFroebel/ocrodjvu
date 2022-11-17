@@ -17,7 +17,6 @@ import contextlib
 import io
 import os
 import shutil
-import sys
 
 from ocrodjvu import temporary
 from ocrodjvu.cli import ocrodjvu

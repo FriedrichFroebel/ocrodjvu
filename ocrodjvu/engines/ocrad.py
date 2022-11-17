@@ -28,11 +28,13 @@ from ocrodjvu import text_zones
 from ocrodjvu import unicode_support
 from ocrodjvu import utils
 
+
 const = text_zones.const
 
-_language_pattern = re.compile('^[a-z]{3}$')
+_LANGUAGE_PATTERN = re.compile('^[a-z]{3}$')
 
-class ExtractSettings(object):
+
+class ExtractSettings:
 
     def __init__(self, rotation=0, details=text_zones.TEXT_DETAILS_WORD, uax29=None, page_size=None, **kwargs):
         self.rotation = rotation
@@ -46,7 +48,9 @@ class ExtractSettings(object):
         self.uax29 = uax29
         self.page_size = page_size
 
-_character_re = re.compile(r"^[0-9]+, '('|[^']*)'[0-9]+")
+
+_CHARACTER_RE = re.compile(r"^[0-9]+, '('|[^']*)'[0-9]+")
+
 
 def scan(stream, settings):
     word_break_iterator = functools.partial(unicode_support.word_break_iterator, locale=settings.uax29)
@@ -59,23 +63,23 @@ def scan(stream, settings):
             [n] = line.split()[3:]
             n = int(n)
             bbox = text_zones.BBox(*((0, 0) + settings.page_size))
-            children = [_f for _f in (scan(stream, settings) for i in range(n)) if _f]
+            children = [_f for _f in (scan(stream, settings) for _ in range(n)) if _f]
             zone = text_zones.Zone(const.TEXT_ZONE_PAGE, bbox, children)
             zone.rotate(settings.rotation)
             return zone
         if line.startswith('text block '):
             n, x, y, w, h = list(map(int, line.split()[2:]))
             bbox = text_zones.BBox(x, y, x + w, y + h)
-            [children] = [scan(stream, settings) for i in range(n)]
+            [children] = [scan(stream, settings) for _ in range(n)]
             return text_zones.Zone(const.TEXT_ZONE_REGION, bbox, children)
         if line.startswith('lines '):
             [n] = line.split()[1:]
             n = int(n)
-            return [_f for _f in (scan(stream, settings) for i in range(n)) if _f]
+            return [_f for _f in (scan(stream, settings) for _ in range(n)) if _f]
         if line.startswith('line '):
             _, _, _, n, _, _ = line.split()
             n = int(n)
-            children = [_f for _f in (scan(stream, settings) for i in range(n)) if _f]
+            children = [_f for _f in (scan(stream, settings) for _ in range(n)) if _f]
             if not children:
                 return None
             bbox = text_zones.BBox()
@@ -92,16 +96,17 @@ def scan(stream, settings):
                 # No interpretations have been proposed for this particular character.
                 text = settings.replacement_character
             else:
-                m = _character_re.match(line)
+                m = _CHARACTER_RE.match(line)
                 if not m:
-                    raise errors.MalformedOcrOutput('bad character description: {line!r}'.format(line=line))
+                    raise errors.MalformedOcrOutputError(f'bad character description: {line!r}')
                 [text] = m.groups()
             return text_zones.Zone(const.TEXT_ZONE_CHARACTER, bbox, [text])
-        raise errors.MalformedOcrOutput('unexpected line: {line!r}'.format(line=line))
-    raise errors.MalformedOcrOutput('unexpected line at EOF: {line!r}'.format(line=line))
+        raise errors.MalformedOcrOutputError(f'unexpected line: {line!r}')
+    else:
+        raise errors.MalformedOcrOutputError('unexpected EOF')
+
 
 class Engine(common.Engine):
-
     name = 'ocrad'
     image_format = image_io.PNM
 
@@ -113,19 +118,20 @@ class Engine(common.Engine):
         common.Engine.__init__(self, **kwargs)
         try:
             self._languages = self._get_languages()
-        except errors.UnknownLanguageList:
-            raise errors.EngineNotFound(self.name)
+        except errors.UnknownLanguageListError:
+            raise errors.EngineNotFoundError(self.name)
 
     def _get_languages(self):
         result = [self.default_language]
         try:
-            ocrad = ipc.Subprocess([self.executable, '--charset=help'],
+            ocrad = ipc.Subprocess(
+                [self.executable, '--charset=help'],
                 stdin=ipc.DEVNULL,
                 stdout=ipc.DEVNULL,
                 stderr=ipc.PIPE,
             )
         except OSError:
-            raise errors.UnknownLanguageList
+            raise errors.UnknownLanguageListError
         try:
             line = ocrad.stderr.read()
             charsets = set(line.split()[1:])
@@ -137,14 +143,14 @@ class Engine(common.Engine):
             except ipc.CalledProcessError:
                 pass
             else:
-                raise errors.UnknownLanguageList
+                raise errors.UnknownLanguageListError
         return result
 
     def check_language(self, language):
-        if not _language_pattern.match(language):
-            raise errors.InvalidLanguageId(language)
+        if not _LANGUAGE_PATTERN.match(language):
+            raise errors.InvalidLanguageIdError(language)
         if language not in self._languages:
-            raise errors.MissingLanguagePack(language)
+            raise errors.MissingLanguagePackError(language)
 
     def list_languages(self):
         return iter(self._languages)
@@ -162,7 +168,7 @@ class Engine(common.Engine):
         try:
             return common.Output(
                 worker.stdout.read(),
-                format='orf',
+                format_='orf',
             )
         finally:
             worker.wait()
