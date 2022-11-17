@@ -16,70 +16,64 @@
 import argparse
 import sys
 
-class UnknownLanguageList(Exception):
+
+class UnknownLanguageListError(Exception):
 
     def __init__(self):
-        Exception.__init__(self,
-            'unable to determine list of available languages'
-        )
+        Exception.__init__(self, 'unable to determine list of available languages')
 
-class InvalidLanguageId(ValueError):
+
+class InvalidLanguageIdError(ValueError):
 
     def __init__(self, name):
-        ValueError.__init__(self,
-            'invalid language identifier: {lang}; '
-            'language identifier is typically an ISO 639-2 three-letter code'
-            .format(lang=name)
+        ValueError.__init__(
+            self,
+            f'invalid language identifier: {name}; language identifier is typically an ISO 639-2 three-letter code'
         )
 
-class MissingLanguagePack(Exception):
+
+class MissingLanguagePackError(Exception):
 
     def __init__(self, language):
-        Exception.__init__(self,
-            'language pack for the selected language ({lang}) is not available'
-            .format(lang=language)
-        )
+        Exception.__init__(self, f'language pack for the selected language ({language}) is not available')
 
-class EngineNotFound(Exception):
+
+class EngineNotFoundError(Exception):
 
     def __init__(self, name):
-        Exception.__init__(self,
-            'OCR engine ({engine}) was not found'
-            .format(engine=name)
-        )
+        Exception.__init__(self, f'OCR engine ({name}) was not found')
 
-class MalformedOcrOutput(Exception):
+
+class MalformedOcrOutputError(Exception):
 
     def __init__(self, message):
-        Exception.__init__(self,
-            'malformed OCR output: {msg}'
-            .format(msg=message)
-        )
+        Exception.__init__(self, f'malformed OCR output: {message}')
 
-class MalformedHocr(MalformedOcrOutput):
+
+class MalformedHocrError(MalformedOcrOutputError):
 
     def __init__(self, message):
-        Exception.__init__(self,
-            'malformed hOCR document: {msg}'
-            .format(msg=message)
-        )
+        Exception.__init__(self, f'malformed hOCR document: {message}')
+
 
 EXIT_FATAL = 1
 EXIT_NONFATAL = 2
 
+
 def fatal(message):
     ap = argparse.ArgumentParser()
-    message = '{prog}: error: {msg}'.format(prog=ap.prog, msg=message)
+    message = f'{ap.prog}: error: {message}'
     print(message, file=sys.stderr)
     sys.exit(EXIT_FATAL)
 
+
 __all__ = [
-    'UnknownLanguageList',
-    'InvalidLanguageId',
-    'MissingLanguagePack',
-    'EngineNotFound',
-    'MalformedOcrOutput',
-    'MalformedHocr',
+    'UnknownLanguageListError',
+    'InvalidLanguageIdError',
+    'MissingLanguagePackError',
+    'EngineNotFoundError',
+    'MalformedOcrOutputError',
+    'MalformedHocrError',
     'EXIT_FATAL',
     'EXIT_NONFATAL',
     'fatal',

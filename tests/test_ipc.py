@@ -42,7 +42,7 @@ class ExceptionsTestCase(TestCase):
     def test_invalid_signo(self):
         # signal.NSIG is guaranteed not be a correct signal number.
         ex = ipc.CalledProcessInterrupted(signal.NSIG, 'eggs')
-        self.assertEqual(str(ex), "Command 'eggs' was interrupted by signal {0}".format(signal.NSIG))
+        self.assertEqual(str(ex), f"Command 'eggs' was interrupted by signal {signal.NSIG}")
         self.assertFalse(ex.by_user)
 
 
@@ -54,11 +54,7 @@ class InitExceptionTestCase(TestCase):
         prog = 'ocrodjvu-nonexistent'
         with self.assertRaises(EnvironmentError) as ecm:
             ipc.Subprocess([prog])
-        msg = '[Errno {err}] {strerr}: {prog!r}'.format(
-            err=errno.ENOENT,
-            strerr=os.strerror(errno.ENOENT),
-            prog=prog
-        )
+        msg = f'[Errno {errno.ENOENT}] {os.strerror(errno.ENOENT)}: {prog!r}'
         self.assertEqual(str(ecm.exception), msg)
 
 
@@ -136,7 +132,8 @@ class EnvironmentTestCase(TestCase):
             os.chmod(command_path, 0o700)
             path = str.join(os.pathsep, [tmpdir, path])
             with interim_environ(PATH=path):
-                child = ipc.Subprocess([command_name],
+                child = ipc.Subprocess(
+                    [command_name],
                     stdout=ipc.PIPE, stderr=ipc.PIPE,
                 )
                 stdout, stderr = child.communicate()
@@ -144,7 +141,8 @@ class EnvironmentTestCase(TestCase):
                 self.assertEqual(stderr, b'')
 
     def _test_locale(self):
-        child = ipc.Subprocess(['locale'],
+        child = ipc.Subprocess(
+            ['locale'],
             stdout=ipc.PIPE, stderr=ipc.PIPE
         )
         stdout, stderr = child.communicate()
@@ -192,10 +190,7 @@ class RequireTestCase(TestCase):
         prog = 'ocrodjvu-nonexistent'
         with self.assertRaises(OSError) as ecm:
             ipc.require(prog)
-        exc_message = "[Errno {errno.ENOENT}] command not found: {cmd!r}".format(
-            errno=errno,
-            cmd=prog,
-        )
+        exc_message = f"[Errno {errno.ENOENT}] command not found: {prog!r}"
         self.assertEqual(str(ecm.exception), exc_message)
 
 # vim:ts=4 sts=4 sw=4 et

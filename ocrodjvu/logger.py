@@ -15,6 +15,7 @@
 
 import logging
 
+
 def setup():
     logger = logging.getLogger('ocrodjvu.main')
     ipc_logger = logging.getLogger('ocrodjvu.ipc')
@@ -33,6 +34,7 @@ def setup():
         ipc_logger.addHandler(handler)
         ipc_logger.setLevel(logging.INFO)
     return logger
+
 
 __all__ = ['setup']
 

@@ -29,11 +29,12 @@ from ocrodjvu import iso639
 from ocrodjvu import temporary
 from ocrodjvu import utils
 
-_language_pattern = re.compile('^[a-z]{3}(?:[+][a-z]{3})*$')
-_language_info_pattern = re.compile(r"^Supported languages: (.*)[.]$")
+
+_LANGUAGE_PATTERN = re.compile('^[a-z]{3}(?:[+][a-z]{3})*$')
+_LANGUAGE_INFO_PATTERN = re.compile(r"^Supported languages: (.*)[.]$")
+
 
 class Engine(common.Engine):
-
     name = 'cuneiform'
     image_format = image_io.BMP
     needs_utf8_fix = True
@@ -41,68 +42,65 @@ class Engine(common.Engine):
     executable = utils.Property('cuneiform')
     extra_args = utils.Property([], shlex.split)
     fix_html = utils.Property(0, int)
-    # fix_html currently does nothing, but we left it, as it might become
-    # useful again at some point in the future.
+    # fix_html currently does nothing, but we left it, as it might become useful again at some point in the future.
 
     def __init__(self, *args, **kwargs):
         common.Engine.__init__(self, *args, **kwargs)
-        self._user_to_cuneiform = None  # to be defined later
-        self._cuneiform_to_iso = None  # to be defined later
+        self._user_to_cuneiform = None  # To be defined later.
+        self._cuneiform_to_iso = None  # To be defined later.
         try:
             self._languages = list(self._get_languages())
-        except errors.UnknownLanguageList:
-            raise errors.EngineNotFound(self.name)
-        # Import hocr late,
-        # so that lxml is imported only when needed.
-        from .. import hocr
+        except errors.UnknownLanguageListError:
+            raise errors.EngineNotFoundError(self.name)
+        # Import hocr late, so that lxml is imported only when needed.
+        from ocrodjvu import hocr
         self._hocr = hocr
 
     def _get_languages(self):
         try:
-            cuneiform = ipc.Subprocess([self.executable, '-l'],
+            cuneiform = ipc.Subprocess(
+                [self.executable, '-l'],
                 stdin=ipc.DEVNULL,
                 stdout=ipc.PIPE,
             )
         except OSError:
-            raise errors.UnknownLanguageList
+            raise errors.UnknownLanguageListError
         cuneiform.stdout = codecs.getreader(sys.stdout.encoding or locale.getpreferredencoding())(cuneiform.stdout)
         self._cuneiform_to_iso = {}
         self._user_to_cuneiform = {}
         try:
             for line in cuneiform.stdout:
-                m = _language_info_pattern.match(line)
+                m = _LANGUAGE_INFO_PATTERN.match(line)
                 if m is None:
                     continue
                 codes = m.group(1).split()
                 for code in codes:
                     if code == 'ruseng':
-                        isocode = 'rus+eng'
+                        iso_code = 'rus+eng'
                         # For compatibility with ocrodjvu ≤ 0.7.14:
                         self._user_to_cuneiform[frozenset(['rus-eng'])] = code
                     elif code == 'slo':
                         if 'slv' not in codes:
-                            # Cuneiform ≤ 1.0 mistakenly uses ‘slo’ as language code
-                            # for Slovenian.
+                            # Cuneiform ≤ 1.0 mistakenly uses `slo` as language code for Slovenian.
                             # https://bugs.launchpad.net/cuneiform-linux/+bug/707951
-                            isocode = 'slv'
+                            iso_code = 'slv'
                         else:
-                            # Both ‘slo’ and ‘slv’ are available. Let's guess that
-                            # the former means Slovak.
-                            isocode = 'slk'
+                            # Both `slo` and `slv` are available. Let's guess that the former means Slovak.
+                            iso_code = 'slk'
                     else:
                         try:
-                            isocode = str.join('+', (
+                            iso_code = str.join('+', (
                                 iso639.b_to_t(c) for c in code.split('_')
                             ))
                         except ValueError:
                             warnings.warn(
-                                'unparsable language code: {0!r}'.format(code),
+                                f'unparsable language code: {code!r}',
                                 category=RuntimeWarning,
                                 stacklevel=2
                             )
-                    self._cuneiform_to_iso[code] = isocode
-                    self._user_to_cuneiform[frozenset(isocode.split('+'))] = code
-                    yield isocode
+                    self._cuneiform_to_iso[code] = iso_code
+                    self._user_to_cuneiform[frozenset(iso_code.split('+'))] = code
+                    yield iso_code
                 return
         finally:
             try:
@@ -110,22 +108,22 @@ class Engine(common.Engine):
             except ipc.CalledProcessError:
                 pass
             else:
-                raise errors.UnknownLanguageList
-        raise errors.UnknownLanguageList
+                raise errors.UnknownLanguageListError
+        raise errors.UnknownLanguageListError
 
     def check_language(self, language):
         if language == 'slo':
             # Normally we accept Cuneiform-specific language code. This is an
-            # exception: ‘slo’ is Slovenian in Cuneiform ≤ 1.0 but it is Slovak
+            # exception: `slo` is Slovenian in Cuneiform ≤ 1.0, but it is Slovak
             # according to ISO 639-2.
             language = 'slk'
         else:
             language = self.cuneiform_to_iso(language)
         language = self.normalize_iso(language)
-        if not _language_pattern.match(language):
-            raise errors.InvalidLanguageId(language)
+        if not _LANGUAGE_PATTERN.match(language):
+            raise errors.InvalidLanguageIdError(language)
         if language not in self._languages:
-            raise errors.MissingLanguagePack(language)
+            raise errors.MissingLanguagePackError(language)
 
     def list_languages(self):
         return iter(self._languages)
@@ -164,7 +162,7 @@ class Engine(common.Engine):
             with open(hocr_file_name, 'r') as hocr_file:
                 return common.Output(
                     hocr_file.read(),
-                    format='html',
+                    format_='html',
                 )
 
     def extract_text(self, *args, **kwargs):

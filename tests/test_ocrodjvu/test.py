@@ -17,7 +17,6 @@ import contextlib
 import io
 import os
 import shutil
-import sys
 
 from ocrodjvu import errors
 from ocrodjvu import temporary
@@ -39,7 +38,9 @@ class OcrodjvuTestCase(TestCase):
         self.assertNotEqual(stdout.getvalue(), '')
 
     def test_version(self):
-        # https://bugs.debian.org/573496
+        """
+        https://bugs.debian.org/573496
+        """
         stdout = io.StringIO()
         stderr = io.StringIO()
         with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
@@ -109,7 +110,7 @@ class OcrodjvuTestCase(TestCase):
         with temporary.directory() as tmpdir:
             out_path = os.path.join(tmpdir, 'tmp.djvu')
             with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
-                with mock.patch.object(ocrodjvu, 'system_encoding', 'ASCII'):
+                with mock.patch.object(ocrodjvu, 'SYSTEM_ENCODING', 'ASCII'):
                     rc = try_run(ocrodjvu.main, ['', '--engine', '_dummy', '--save-bundled', out_path, path])
         self.assertEqual(stderr.getvalue(), '')
         self.assertEqual(rc, 0)

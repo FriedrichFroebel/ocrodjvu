@@ -17,6 +17,7 @@ import argparse
 
 from ocrodjvu import errors
 
+
 class ArgumentParser(argparse.ArgumentParser):
 
     def exit(self, status=0, message=None):

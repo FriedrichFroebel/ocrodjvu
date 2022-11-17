@@ -32,15 +32,16 @@ from ocrodjvu import temporary
 from ocrodjvu import text_zones
 from ocrodjvu import utils
 
+
 const = text_zones.const
 
-_language_pattern = re.compile('^([a-z]{3})(?:[-_]([a-z]+))?$')
-_error_pattern = re.compile(
+_LANGUAGE_PATTERN = re.compile('^([a-z]{3})(?:[-_]([a-z]+))?$')
+_ERROR_PATTERN = re.compile(
     r"^(Error openn?ing data|Unable to load unicharset) file (?P<dir>/.*)/nonexistent[.](?P<ext>[a-z]+)$",
     re.MULTILINE
 )
 
-_bbox_extras_template = '''\
+_BBOX_EXTRAS_TEMPLATE = '''\
 <!-- The following script was appended to hOCR by ocrodjvu for internal purposes. -->
 <script type='application/x-ocrodjvu-tesseract'>
 //<![CDATA[
@@ -49,23 +50,25 @@ _bbox_extras_template = '''\
 </script>
 '''
 
+
 def _filter_boring_stderr(stderr):
     if not stderr:
         return
     if stderr[0].startswith('Tesseract Open Source OCR Engine'):
-        # Tesseract prints its own name on standard error
-        # even if nothing went wrong.
+        # Tesseract prints its own name on standard error even if nothing went wrong.
         del stderr[0]
     if stderr and stderr[0] == 'Page 1':
-        # We also don't want page numbers,
-        # because we always pass just a single page to Tesseract.
+        # We also don't want page numbers, because we always pass just a single page to Tesseract.
         del stderr[0]
+
 
 def _wait_for_worker(worker):
     stderr = worker.stderr.read().splitlines()
+
     def print_errors():
         for line in stderr:
-            print('tesseract: {0}'.format(line), file=sys.stderr)
+            print(f'tesseract: {line}', file=sys.stderr)
+
     try:
         worker.wait()
     except Exception:
@@ -74,11 +77,12 @@ def _wait_for_worker(worker):
     _filter_boring_stderr(stderr)
     print_errors()
 
+
 def fix_html(s):
-    '''
+    """
     Work around buggy hOCR output:
     https://groups.google.com/d/topic/tesseract-issues/AdZhdGFkTrA
-    '''
+    """
     regex = re.compile(
         r'''
         ( <[!/]?[a-z]+(?:\s+[^<>]*)?>
@@ -97,14 +101,15 @@ def fix_html(s):
         for n, chunk in enumerate(regex.split(s))
     )
 
-class ExtractSettings(object):
+
+class ExtractSettings:
 
     def __init__(self, rotation=0, page_size=None, **kwargs):
         self.rotation = rotation
         self.page_size = page_size
 
-class Engine(common.Engine):
 
+class Engine(common.Engine):
     name = 'tesseract'
     image_format = image_io.TIFF
     needs_utf8_fix = True
@@ -118,42 +123,42 @@ class Engine(common.Engine):
         common.Engine.__init__(self, **kwargs)
         try:
             self._directory, self._extension = self.get_filesystem_info()
-        except errors.UnknownLanguageList:
-            raise errors.EngineNotFound(self.name)
+        except errors.UnknownLanguageListError:
+            raise errors.EngineNotFoundError(self.name)
         if self.use_hocr is None:
             self.use_hocr = self._extension == 'traineddata'
         if self.use_hocr:
-            # Import hocr late,
-            # so that lxml is imported only when needed.
-            from .. import hocr
+            # Import hocr late, so that lxml is imported only when needed.
+            from ocrodjvu import hocr
             self._hocr = hocr
         else:
             self._hocr = None
-        self._user_to_tesseract = None  # to be defined later
+        self._user_to_tesseract = None  # To be defined later.
         self._languages = list(self._get_languages())
 
     def get_filesystem_info(self):
         try:
-            tesseract = ipc.Subprocess([self.executable, '', '', '-l', 'nonexistent'],
+            tesseract = ipc.Subprocess(
+                [self.executable, '', '', '-l', 'nonexistent'],
                 stdin=ipc.DEVNULL,
                 stdout=ipc.DEVNULL,
                 stderr=ipc.PIPE,
             )
         except OSError:
-            raise errors.UnknownLanguageList
-        
+            raise errors.UnknownLanguageListError
+
         tesseract.stdout = codecs.getreader(sys.stdout.encoding or locale.getpreferredencoding())(tesseract.stdout)
         tesseract.stderr = codecs.getreader(sys.stdout.encoding or locale.getpreferredencoding())(tesseract.stderr)
 
         try:
             stderr = tesseract.stderr.read()
-            match = _error_pattern.search(stderr)
+            match = _ERROR_PATTERN.search(stderr)
             if match is None:
-                raise errors.UnknownLanguageList
+                raise errors.UnknownLanguageListError
             directory = match.group('dir')
             extension = match.group('ext')
             if not os.path.isdir(directory):
-                raise errors.UnknownLanguageList
+                raise errors.UnknownLanguageListError
         finally:
             try:
                 tesseract.wait()
@@ -172,36 +177,37 @@ class Engine(common.Engine):
 
     def _get_languages(self):
         self._user_to_tesseract = {}
-        wildcard = '*.{ext}'.format(ext=self._extension)
+        wildcard = f'*.{self._extension}'
         for filename in glob.iglob(os.path.join(self._directory, wildcard)):
             filename = os.path.basename(filename)
             code = os.path.splitext(filename)[0]
             if code == 'osd':
                 continue
             try:
-                isocode = self.user_to_iso639(code)
-            except errors.InvalidLanguageId:
+                iso_code = self.user_to_iso639(code)
+            except errors.InvalidLanguageIdError:
                 continue
-            self._user_to_tesseract[isocode] = code
-            yield isocode
+            self._user_to_tesseract[iso_code] = code
+            yield iso_code
 
-    def user_to_iso639(self, language):
-        match = _language_pattern.match(language)
+    @classmethod
+    def user_to_iso639(cls, language):
+        match = _LANGUAGE_PATTERN.match(language)
         if match is None:
             return language
-        isocode = iso639.b_to_t(match.group(1))
+        iso_code = iso639.b_to_t(match.group(1))
         if match.group(2) is not None:
-            isocode += '-' + match.group(2)
-        return isocode
+            iso_code += '-' + match.group(2)
+        return iso_code
 
     def user_to_tesseract(self, language):
         result = []
-        for sublang in language.split('+'):
-            isocode = self.user_to_iso639(sublang)
+        for sub_lang in language.split('+'):
+            iso_code = self.user_to_iso639(sub_lang)
             try:
-                tesseract_code = self._user_to_tesseract[isocode]
+                tesseract_code = self._user_to_tesseract[iso_code]
             except LookupError:
-                raise errors.MissingLanguagePack(isocode)
+                raise errors.MissingLanguagePackError(iso_code)
             result += [tesseract_code]
         return str.join('+', result)
 
@@ -222,27 +228,22 @@ class Engine(common.Engine):
             with open(os.path.join(output_dir, 'tmp.txt'), 'rt') as file:
                 return common.Output(
                     file.read(),
-                    format='txt',
+                    format_='txt',
                 )
 
     def recognize_hocr(self, image, language, details=text_zones.TEXT_DETAILS_WORD, uax29=None):
         language = self.user_to_tesseract(language)
-        character_details = (
-            details < text_zones.TEXT_DETAILS_WORD or
-            (uax29 and details <= text_zones.TEXT_DETAILS_WORD)
-        )
+        character_details = details < text_zones.TEXT_DETAILS_WORD or (uax29 and details <= text_zones.TEXT_DETAILS_WORD)
         with temporary.directory() as output_dir:
             tessconf_path = os.path.join(output_dir, 'tessconf')
             with open(tessconf_path, 'wt') as tessconf:
-                # Tesseract 3.00 doesn't come with any config file to enable hOCR
+                # Tesseract 3.00 does not come with any config file to enable hOCR
                 # output. Let's create our own one.
                 print('tessedit_create_hocr T', file=tessconf)
-            commandline = (
-                [self.executable, image.name, os.path.join(output_dir, 'tmp')] +
-                ['-l', language] +
-                self.extra_args +
-                [tessconf_path]
-            )
+            commandline = [
+                self.executable, image.name, os.path.join(output_dir, 'tmp'),
+                '-l', language
+            ] + self.extra_args + [tessconf_path]
             if character_details:
                 commandline += ['makebox']
             worker = ipc.Subprocess(
@@ -276,13 +277,13 @@ class Engine(common.Engine):
                 with open(box_path, 'r') as box_file:
                     contents = contents.replace(
                         '</body>',
-                        _bbox_extras_template.format(box_file.read()) + '</body>'
+                        _BBOX_EXTRAS_TEMPLATE.format(box_file.read()) + '</body>'
                     )
         if self.fix_html:
             contents = fix_html(contents)
         return common.Output(
             contents,
-            format='html',
+            format_='html',
         )
 
     def recognize(self, image, language, details=None, uax29=None):

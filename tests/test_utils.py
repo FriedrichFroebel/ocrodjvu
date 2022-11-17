@@ -27,7 +27,7 @@ class EnhanceImportTestCase(TestCase):
     def setUpClass(cls):
         # noinspection PyTypeChecker
         sys.modules['nonexistent'] = None
-    
+
     def test_debian(self):
         with mock.patch.object(utils, 'IS_DEBIAN', True):
             with self.assertRaises(expected_exception=ImportError) as exception_manager:
@@ -103,7 +103,6 @@ class EnhanceImportTestCase(TestCase):
             t()
 
 
-# pylint: disable=eval-used
 class SmartReprTestCase(TestCase):
     def test_string(self):
         for s in '', '\f', 'eggs', '''e'gg"s''', 'jeż', '''j'e"ż''':

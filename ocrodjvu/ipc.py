@@ -24,18 +24,16 @@ import pipes
 import re
 import signal
 import subprocess
-import warnings
 
-from ocrodjvu import utils
 
 # CalledProcessError, CalledProcessInterrupted
 # ============================================
 
-# Protect from scanadf[0] and possibly other software that sets
-# SIGCHLD to SIG_IGN.
+# Protect from scanadf[0] and possibly other software that sets SIGCHLD to SIG_IGN.
 # [0] https://bugs.debian.org/596232
 if os.name == 'posix':
     signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+
 
 def get_signal_names():
     signame_pattern = re.compile('^SIG[A-Z0-9]*$')
@@ -56,10 +54,11 @@ def get_signal_names():
         pass
     return dict((no, name) for name, no in data.items())
 
+
 CalledProcessError = subprocess.CalledProcessError
 
-class CalledProcessInterrupted(CalledProcessError):
 
+class CalledProcessInterrupted(CalledProcessError):
     _signal_names = get_signal_names()
 
     def __init__(self, signal_id, command):
@@ -68,9 +67,11 @@ class CalledProcessInterrupted(CalledProcessError):
 
     def __str__(self):
         signal_name = self._signal_names.get(self.args[1], self.args[1])
-        return 'Command {cmd!r} was interrupted by signal {sig}'.format(cmd=self.args[0], sig=signal_name)
+        return f'Command {self.args[0]!r} was interrupted by signal {signal_name}'
+
 
 del get_signal_names
+
 
 # Subprocess
 # ==========
@@ -80,7 +81,7 @@ class Subprocess(subprocess.Popen):
     @classmethod
     def override_env(cls, override):
         env = os.environ
-        # We'd like to:
+        # We would like to:
         # - preserve LC_CTYPE (which is required by some DjVuLibre tools),
         # - but reset all other locale settings (which tend to break things).
         lc_ctype = env.get('LC_ALL') or env.get('LC_CTYPE') or env.get('LANG')
@@ -124,6 +125,7 @@ class Subprocess(subprocess.Popen):
         if return_code < 0:
             raise CalledProcessInterrupted(-return_code, self.__command)
 
+
 # PIPE
 # ====
 
@@ -137,6 +139,7 @@ try:
 except AttributeError:
     DEVNULL = open(os.devnull, 'rw')
 
+
 # require()
 # =========
 
@@ -148,10 +151,12 @@ def require(command):
             return
     raise OSError(errno.ENOENT, 'command not found', command)
 
+
 # logging support
 # ===============
 
 logger = logging.getLogger('ocrodjvu.ipc')
+
 
 # __all__
 # =======

@@ -36,9 +36,10 @@ from ocrodjvu.text_zones import const, sexpr
 
 __version__ = version.__version__
 
-system_encoding = locale.getpreferredencoding()
+SYSTEM_ENCODING = locale.getpreferredencoding()
 
-logger = logger.setup()
+LOGGER = logger.setup()
+
 
 class ArgumentParser(cli.ArgumentParser):
 
@@ -48,12 +49,17 @@ class ArgumentParser(cli.ArgumentParser):
         self.add_argument('--version', action=version.VersionAction)
         group = self.add_argument_group(title='input selection options')
         group.add_argument('path', metavar='FILE', help='DjVu file to covert')
+
         def pages(x):
             return utils.parse_page_numbers(x)
+
         group.add_argument('-p', '--pages', dest='pages', action='store', default=None, type=pages, help='pages to convert')
         group = self.add_argument_group(title='word segmentation options')
-        group.add_argument('--word-segmentation', dest='word_segmentation', choices=('simple', 'uax29'), default='simple', help='word segmentation algorithm')
-        # -l/--language is currently not very useful, as ICU don't have any specialisations for languages ocrodjvu supports:
+        group.add_argument(
+            '--word-segmentation', dest='word_segmentation', choices=('simple', 'uax29'), default='simple',
+            help='word segmentation algorithm'
+        )
+        # -l/--language is currently not very useful, as ICU does not have any specialisations for languages ocrodjvu supports:
         group.add_argument('-l', '--language', dest='language', help=argparse.SUPPRESS or 'language for word segmentation', default='eng')
         group = self.add_argument_group(title='HTML output options')
         group.add_argument('--title', dest='title', help='document title', default='DjVu hidden text layer')
@@ -69,13 +75,15 @@ class ArgumentParser(cli.ArgumentParser):
             options.locale = None
         return options
 
-class CharacterLevelDetails(Exception):
+
+class CharacterLevelDetailsError(Exception):
     pass
 
-class Zone(object):
 
-    def __init__(self, sexpr, page_height):
-        self._sexpr = sexpr
+class Zone:
+
+    def __init__(self, sexpr_, page_height):
+        self._sexpr = sexpr_
         self._page_height = page_height
 
     @property
@@ -94,7 +102,7 @@ class Zone(object):
     @property
     def text(self):
         if len(self._sexpr) != 6:
-            raise TypeError('list of {0} (!= 6) elements'.format(len(self._sexpr)))  # no coverage
+            raise TypeError(f'list of {len(self._sexpr)} (!= 6) elements')  # no coverage
         if not isinstance(self._sexpr[5], sexpr.StringExpression):
             raise TypeError('last element is not a string')  # no coverage
         return self._sexpr[5].value
@@ -112,13 +120,14 @@ class Zone(object):
     def n_children(self):
         n = len(self._sexpr) - 5
         if n <= 0:
-            raise TypeError('list of {0} (< 6) elements'.format(len(self._sexpr)))  # no coverage
+            raise TypeError(f'list of {len(self._sexpr)} (< 6) elements')  # no coverage
         return n
 
     def __repr__(self):
-        return '{tp}({sexpr!r})'.format(tp=type(self).__name__, sexpr=self._sexpr)
+        return f'{type(self).__name__}({self._sexpr!r})'
 
-_xml_string_re = re.compile(
+
+_XML_STRING_RE = re.compile(
     '''
     ([^\x00-\x08\x0B\x0C\x0E-\x1F]*)
     ( [\x00-\x08\x0B\x0C\x0E-\x1F]?)
@@ -126,9 +135,10 @@ _xml_string_re = re.compile(
     re.VERBOSE
 )
 
+
 def set_text(element, text):
     last = None
-    for match in _xml_string_re.finditer(text):
+    for match in _XML_STRING_RE.finditer(text):
         if match.group(1):
             if last is None:
                 element.text = match.group(1)
@@ -137,9 +147,10 @@ def set_text(element, text):
         if match.group(2):
             last = etree.Element('span')
             last.set('class', 'djvu_char')
-            last.set('title', '#x{0:02x}'.format(ord(match.group(2))))
+            last.set('title', f'#x{ord(match.group(2)):02x}')
             last.text = ' '
             element.append(last)
+
 
 def break_chars(char_zone_list, options):
     bbox_list = []
@@ -182,6 +193,7 @@ def break_chars(char_zone_list, options):
         yield element
         i = j
 
+
 def break_plain_text(text, bbox, options):
     break_iterator = unicode_support.word_break_iterator(text, options.locale)
     i = 0
@@ -206,15 +218,16 @@ def break_plain_text(text, bbox, options):
         yield element
         i = j
 
+
 def process_zone(parent, zone, last, options):
     zone_type = zone.type
     if zone_type <= const.TEXT_ZONE_LINE and parent is not None:
         parent.tail = '\n'
     try:
-        hocr_tag, hocr_class = hocr.djvu_zone_to_hocr(zone_type)
+        hocr_tag, hocr_class = hocr.DJVU_ZONE_TO_HOCR(zone_type)
     except LookupError as ex:
-        if ex[0] == const.TEXT_ZONE_CHARACTER:
-            raise CharacterLevelDetails
+        if ex.args[0] == const.TEXT_ZONE_CHARACTER:
+            raise CharacterLevelDetailsError()
         raise
     self = etree.Element(hocr_tag)
     self.set('class', hocr_class)
@@ -230,7 +243,7 @@ def process_zone(parent, zone, last, options):
         if isinstance(child_zone, Zone):
             try:
                 process_zone(self, child_zone, last=last_child, options=options)
-            except CharacterLevelDetails:
+            except CharacterLevelDetailsError:
                 # Do word segmentation by hand.
                 character_level_details = True
                 break
@@ -262,12 +275,14 @@ def process_zone(parent, zone, last, options):
         parent.append(self)
     return self
 
+
 def process_page(page_text, options):
     result = process_zone(None, page_text, last=True, options=options)
     tree = etree.ElementTree(result)
     sys.stdout.write(etree.tostring(tree, encoding='UTF-8', method='xml').decode('UTF-8'))
 
-hocr_header_template = '''\
+
+HOCR_HEADER_TEMPLATE = '''\
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -281,16 +296,18 @@ hocr_header_template = '''\
 <body>
 '''
 
-hocr_header_style_re = re.compile(r'^\s+<style\s.*?\n', re.MULTILINE)
+HOCR_HEADER_STYLE_RE = re.compile(r'^\s+<style\s.*?\n', re.MULTILINE)
 
-hocr_footer = '''
+HOCR_FOOTER = '''
 </body>
 </html>
 '''
 
-def main(argv=sys.argv):
+
+def main(argv=None):
+    argv = argv if argv is not None else sys.argv
     options = ArgumentParser().parse_args(argv[1:])
-    logger.info('Converting {path}:'.format(path=options.path))
+    LOGGER.info(f'Converting {options.path}:')
     if options.pages is None:
         djvused = ipc.Subprocess(
             ['djvused', '-e', 'n', os.path.abspath(options.path)],
@@ -304,36 +321,36 @@ def main(argv=sys.argv):
     page_iterator = iter(options.pages)
     sed_script = temporary.file(suffix='.djvused', mode='w+', encoding='UTF-8')
     for n in options.pages:
-        print('select {0}; size; print-txt'.format(n), file=sed_script)
+        print(f'select {n}; size; print-txt', file=sed_script)
     sed_script.flush()
     djvused = ipc.Subprocess(
         ['djvused', '-f', sed_script.name, os.path.abspath(options.path)],
         stdout=ipc.PIPE,
     )
-    ocr_system = 'djvu2hocr {ver}'.format(ver=__version__)
-    hocr_header = hocr_header_template.format(
+    ocr_system = f'djvu2hocr {__version__}'
+    hocr_header = HOCR_HEADER_TEMPLATE.format(
         ocr_system=ocr_system,
-        ocr_capabilities=str.join(' ', hocr.djvu2hocr_capabilities),
+        ocr_capabilities=' '.join(hocr.DJVU2HOCR_CAPABILITIES),
         title=html.escape(options.title),
         css=html.escape(options.css),
     )
     if not options.css:
-        hocr_header = re.sub(hocr_header_style_re, '', hocr_header, count=1)
+        hocr_header = re.sub(HOCR_HEADER_STYLE_RE, '', hocr_header, count=1)
     sys.stdout.write(hocr_header)
     for n in page_iterator:
         try:
             page_size = [
                 int(str(sexpr.Expression.from_stream(djvused.stdout).value).split('=')[1])
-                for i in range(2)
+                for _ in range(2)
             ]
             options.page_bbox = text_zones.BBox(0, 0, page_size[0], page_size[1])
             page_text = sexpr.Expression.from_stream(djvused.stdout)
         except sexpr.ExpressionSyntaxError:
             break
-        logger.info('- Page #{n}'.format(n=n))
+        LOGGER.info(f'- Page #{n}')
         page_zone = Zone(page_text, page_size[1])
         process_page(page_zone, options)
-    sys.stdout.write(hocr_footer)
+    sys.stdout.write(HOCR_FOOTER)
     djvused.wait()
 
 # vim:ts=4 sts=4 sw=4 et

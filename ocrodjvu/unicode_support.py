@@ -15,14 +15,17 @@
 
 from ocrodjvu import utils
 
+
 def get_icu():
     try:
+        # noinspection PyPackageRequirements
         import icu
     except ImportError as ex:  # no coverage
         utils.enhance_import_error(ex, 'PyICU', 'python-pyicu', 'https://pypi.org/project/PyICU/')
         raise
     else:
         return icu
+
 
 def simple_word_break_iterator(text):
     """
@@ -36,6 +39,7 @@ def simple_word_break_iterator(text):
             yield n
             space = not space
     yield len(text)
+
 
 def word_break_iterator(text, locale=None):
     """
