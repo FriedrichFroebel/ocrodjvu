@@ -71,6 +71,7 @@ jobs:
         cd deps
         tar -xvzf python-djvulibre.tar.gz
         cd python-djvulibre-python3/
+        python -m pip install --upgrade packaging
         python setup.py install
       if: ${{ matrix.djvulibre != 'legacy' }}
     - name: install package
