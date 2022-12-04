@@ -8,9 +8,25 @@ jobs:
   main:
     strategy:
       matrix:
-        python: [3.8, 3.9, '3.10', '3.11']
+        include:
+        - python: 3.8
+          djvulibre: legacy
+        - python: 3.9
+          djvulibre: legacy
+        - python: '3.10'
+          djvulibre: legacy
+        - python: '3.11'
+          djvulibre: legacy
+        - python: 3.8
+          djvulibre: latest
+        - python: 3.9
+          djvulibre: latest
+        - python: '3.10'
+          djvulibre: latest
+        - python: '3.11'
+          djvulibre: latest
     runs-on: ubuntu-latest
-    name: Python ${{ matrix.python }}
+    name: Python ${{ matrix.python }} with djvulibre ${{ matrix.djvulibre }}
     steps:
     - uses: actions/checkout@v3
     - name: set up Python
@@ -47,6 +63,16 @@ jobs:
     - name: install Cython
       run:
         python -m pip install cython
+    - name: install djuvlibre master
+      run: |
+        url="https://github.com/FriedrichFroebel/python-djvulibre/archive/python3.tar.gz"
+        mkdir -p deps/
+        wget "$url" -O deps/python-djvulibre.tar.gz
+        cd deps
+        tar -xvzf python-djvulibre.tar.gz
+        cd python-djvulibre-python3/
+        python setup.py install
+      if: ${{ matrix.djvulibre != 'legacy' }}
     - name: install package
       run:
         python -m pip install .[dev,docs]
