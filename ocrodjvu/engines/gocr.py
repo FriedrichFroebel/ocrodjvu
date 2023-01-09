@@ -121,26 +121,26 @@ class Engine(common.Engine):
 
     def _check_version(self):
         try:
-            gocr = ipc.Subprocess(
-                [self.executable],
-                stdin=ipc.DEVNULL,
-                stdout=ipc.DEVNULL,
-                stderr=ipc.PIPE,
-            )
+            with ipc.Subprocess(
+                    [self.executable],
+                    stdin=ipc.DEVNULL,
+                    stdout=ipc.DEVNULL,
+                    stderr=ipc.PIPE,
+            ) as gocr:
+                try:
+                    line = gocr.stderr.read()
+                    m = _VERSION_RE.search(line.decode('UTF-8'))
+                    if not m:
+                        raise errors.EngineNotFoundError(Engine.name)
+                    version = tuple(map(int, m.groups()))
+                    if version >= (0, 40):
+                        return
+                    else:
+                        raise errors.EngineNotFoundError(Engine.name)
+                finally:
+                    gocr.wait()
         except OSError:
             raise errors.EngineNotFoundError(Engine.name)
-        try:
-            line = gocr.stderr.read()
-            m = _VERSION_RE.search(line.decode('UTF-8'))
-            if not m:
-                raise errors.EngineNotFoundError(Engine.name)
-            version = tuple(map(int, m.groups()))
-            if version >= (0, 40):
-                return
-            else:
-                raise errors.EngineNotFoundError(Engine.name)
-        finally:
-            gocr.wait()
 
     def check_language(self, language):
         if not _LANGUAGE_PATTERN.match(language):
@@ -152,18 +152,18 @@ class Engine(common.Engine):
         yield self.default_language
 
     def recognize(self, image, language, details=None, uax29=None):
-        worker = ipc.Subprocess(
-            [self.executable, '-i', image.name, '-f', 'XML'] + self.extra_args,
-            stdin=ipc.DEVNULL,
-            stdout=ipc.PIPE,
-        )
-        try:
-            return common.Output(
-                worker.stdout.read(),
-                format_='gocr.xml',
-            )
-        finally:
-            worker.wait()
+        with ipc.Subprocess(
+                [self.executable, '-i', image.name, '-f', 'XML'] + self.extra_args,
+                stdin=ipc.DEVNULL,
+                stdout=ipc.PIPE,
+        ) as worker:
+            try:
+                return common.Output(
+                    worker.stdout.read(),
+                    format_='gocr.xml',
+                )
+            finally:
+                worker.wait()
 
     def extract_text(self, stream, **kwargs):
         settings = ExtractSettings(**kwargs)

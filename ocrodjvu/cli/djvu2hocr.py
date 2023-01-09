@@ -309,48 +309,48 @@ def main(argv=None):
     options = ArgumentParser().parse_args(argv[1:])
     LOGGER.info(f'Converting {options.path}:')
     if options.pages is None:
-        djvused = ipc.Subprocess(
-            ['djvused', '-e', 'n', os.path.abspath(options.path)],
-            stdout=ipc.PIPE,
-        )
-        try:
-            n_pages = int(djvused.stdout.readline())
-        finally:
-            djvused.wait()
+        with ipc.Subprocess(
+                ['djvused', '-e', 'n', os.path.abspath(options.path)],
+                stdout=ipc.PIPE,
+        ) as djvused:
+            try:
+                n_pages = int(djvused.stdout.readline())
+            finally:
+                djvused.wait()
         options.pages = range(1, n_pages + 1)
     page_iterator = iter(options.pages)
     sed_script = temporary.file(suffix='.djvused', mode='w+', encoding='UTF-8')
     for n in options.pages:
         print(f'select {n}; size; print-txt', file=sed_script)
     sed_script.flush()
-    djvused = ipc.Subprocess(
-        ['djvused', '-f', sed_script.name, os.path.abspath(options.path)],
-        stdout=ipc.PIPE,
-    )
-    ocr_system = f'djvu2hocr {__version__}'
-    hocr_header = HOCR_HEADER_TEMPLATE.format(
-        ocr_system=ocr_system,
-        ocr_capabilities=' '.join(hocr.DJVU2HOCR_CAPABILITIES),
-        title=html.escape(options.title),
-        css=html.escape(options.css),
-    )
-    if not options.css:
-        hocr_header = re.sub(HOCR_HEADER_STYLE_RE, '', hocr_header, count=1)
-    sys.stdout.write(hocr_header)
-    for n in page_iterator:
-        try:
-            page_size = [
-                int(str(sexpr.Expression.from_stream(djvused.stdout).value).split('=')[1])
-                for _ in range(2)
-            ]
-            options.page_bbox = text_zones.BBox(0, 0, page_size[0], page_size[1])
-            page_text = sexpr.Expression.from_stream(djvused.stdout)
-        except sexpr.ExpressionSyntaxError:
-            break
-        LOGGER.info(f'- Page #{n}')
-        page_zone = Zone(page_text, page_size[1])
-        process_page(page_zone, options)
-    sys.stdout.write(HOCR_FOOTER)
-    djvused.wait()
+    with ipc.Subprocess(
+            ['djvused', '-f', sed_script.name, os.path.abspath(options.path)],
+            stdout=ipc.PIPE,
+    ) as djvused:
+        ocr_system = f'djvu2hocr {__version__}'
+        hocr_header = HOCR_HEADER_TEMPLATE.format(
+            ocr_system=ocr_system,
+            ocr_capabilities=' '.join(hocr.DJVU2HOCR_CAPABILITIES),
+            title=html.escape(options.title),
+            css=html.escape(options.css),
+        )
+        if not options.css:
+            hocr_header = re.sub(HOCR_HEADER_STYLE_RE, '', hocr_header, count=1)
+        sys.stdout.write(hocr_header)
+        for n in page_iterator:
+            try:
+                page_size = [
+                    int(str(sexpr.Expression.from_stream(djvused.stdout).value).split('=')[1])
+                    for _ in range(2)
+                ]
+                options.page_bbox = text_zones.BBox(0, 0, page_size[0], page_size[1])
+                page_text = sexpr.Expression.from_stream(djvused.stdout)
+            except sexpr.ExpressionSyntaxError:
+                break
+            LOGGER.info(f'- Page #{n}')
+            page_zone = Zone(page_text, page_size[1])
+            process_page(page_zone, options)
+        sys.stdout.write(HOCR_FOOTER)
+        djvused.wait()
 
 # vim:ts=4 sts=4 sw=4 et

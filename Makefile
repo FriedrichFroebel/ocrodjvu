@@ -30,13 +30,13 @@ install_manpage:
 # FIXME: Fix broken `ipc.Subprocess.wait`.
 .PHONY: test
 test:
-	$(PYTHON) -W ignore:ResourceWarning -m unittest discover --start-directory tests/
+	$(PYTHON) -m unittest discover --start-directory tests/
 
 # FIXME: Fix broken `ipc.Subprocess.wait`.
 .PHONY: update-coverage
 update-coverage:
 	coverage erase
-	$(PYTHON) -W ignore:ResourceWarning -m coverage run -m unittest discover --start-directory tests/
+	$(PYTHON) -m coverage run -m unittest discover --start-directory tests/
 	coverage report --include=ocrodjvu/*
 
 .PHONY: clean
