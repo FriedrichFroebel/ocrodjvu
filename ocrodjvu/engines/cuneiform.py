@@ -58,57 +58,58 @@ class Engine(common.Engine):
 
     def _get_languages(self):
         try:
-            cuneiform = ipc.Subprocess(
-                [self.executable, '-l'],
-                stdin=ipc.DEVNULL,
-                stdout=ipc.PIPE,
-            )
+            with ipc.Subprocess(
+                    [self.executable, '-l'],
+                    stdin=ipc.DEVNULL,
+                    stdout=ipc.PIPE,
+            ) as cuneiform:
+                stdout = codecs.getreader(sys.stdout.encoding or locale.getpreferredencoding())(cuneiform.stdout)
+                self._cuneiform_to_iso = {}
+                self._user_to_cuneiform = {}
+                try:
+                    for line in stdout:
+                        m = _LANGUAGE_INFO_PATTERN.match(line)
+                        if m is None:
+                            continue
+                        codes = m.group(1).split()
+                        for code in codes:
+                            if code == 'ruseng':
+                                iso_code = 'rus+eng'
+                                # For compatibility with ocrodjvu ≤ 0.7.14:
+                                self._user_to_cuneiform[frozenset(['rus-eng'])] = code
+                            elif code == 'slo':
+                                if 'slv' not in codes:
+                                    # Cuneiform ≤ 1.0 mistakenly uses `slo` as language code for Slovenian.
+                                    # https://bugs.launchpad.net/cuneiform-linux/+bug/707951
+                                    iso_code = 'slv'
+                                else:
+                                    # Both `slo` and `slv` are available. Let's guess that the former means Slovak.
+                                    iso_code = 'slk'
+                            else:
+                                try:
+                                    iso_code = str.join('+', (
+                                        iso639.b_to_t(c) for c in code.split('_')
+                                    ))
+                                except ValueError:
+                                    warnings.warn(
+                                        f'unparsable language code: {code!r}',
+                                        category=RuntimeWarning,
+                                        stacklevel=2
+                                    )
+                            self._cuneiform_to_iso[code] = iso_code
+                            self._user_to_cuneiform[frozenset(iso_code.split('+'))] = code
+                            yield iso_code
+                        return
+                finally:
+                    try:
+                        cuneiform.wait()
+                    except ipc.CalledProcessError:
+                        pass
+                    else:
+                        raise errors.UnknownLanguageListError
         except OSError:
             raise errors.UnknownLanguageListError
-        cuneiform.stdout = codecs.getreader(sys.stdout.encoding or locale.getpreferredencoding())(cuneiform.stdout)
-        self._cuneiform_to_iso = {}
-        self._user_to_cuneiform = {}
-        try:
-            for line in cuneiform.stdout:
-                m = _LANGUAGE_INFO_PATTERN.match(line)
-                if m is None:
-                    continue
-                codes = m.group(1).split()
-                for code in codes:
-                    if code == 'ruseng':
-                        iso_code = 'rus+eng'
-                        # For compatibility with ocrodjvu ≤ 0.7.14:
-                        self._user_to_cuneiform[frozenset(['rus-eng'])] = code
-                    elif code == 'slo':
-                        if 'slv' not in codes:
-                            # Cuneiform ≤ 1.0 mistakenly uses `slo` as language code for Slovenian.
-                            # https://bugs.launchpad.net/cuneiform-linux/+bug/707951
-                            iso_code = 'slv'
-                        else:
-                            # Both `slo` and `slv` are available. Let's guess that the former means Slovak.
-                            iso_code = 'slk'
-                    else:
-                        try:
-                            iso_code = str.join('+', (
-                                iso639.b_to_t(c) for c in code.split('_')
-                            ))
-                        except ValueError:
-                            warnings.warn(
-                                f'unparsable language code: {code!r}',
-                                category=RuntimeWarning,
-                                stacklevel=2
-                            )
-                    self._cuneiform_to_iso[code] = iso_code
-                    self._user_to_cuneiform[frozenset(iso_code.split('+'))] = code
-                    yield iso_code
-                return
-        finally:
-            try:
-                cuneiform.wait()
-            except ipc.CalledProcessError:
-                pass
-            else:
-                raise errors.UnknownLanguageListError
+
         raise errors.UnknownLanguageListError
 
     def check_language(self, language):
@@ -148,17 +149,17 @@ class Engine(common.Engine):
             # A separate non-world-writable directory is needed, as Cuneiform
             # can create additional files, e.g. images.
             hocr_file_name = os.path.join(hocr_directory, 'ocr.html')
-            worker = ipc.Subprocess(
-                [
-                    self.executable,
-                    '-l', self.user_to_cuneiform(language),
-                    '-f', 'hocr',
-                    '-o', hocr_file_name
-                ] + self.extra_args + [image.name],
-                stdin=ipc.DEVNULL,
-                stdout=ipc.DEVNULL,
-            )
-            worker.wait()
+            with ipc.Subprocess(
+                    [
+                        self.executable,
+                        '-l', self.user_to_cuneiform(language),
+                        '-f', 'hocr',
+                        '-o', hocr_file_name
+                    ] + self.extra_args + [image.name],
+                    stdin=ipc.DEVNULL,
+                    stdout=ipc.DEVNULL,
+            ) as worker:
+                worker.wait()
             with open(hocr_file_name, 'r') as hocr_file:
                 return common.Output(
                     hocr_file.read(),

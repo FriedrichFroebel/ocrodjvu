@@ -63,7 +63,8 @@ def _filter_boring_stderr(stderr):
 
 
 def _wait_for_worker(worker):
-    stderr = worker.stderr.read().splitlines()
+    stderr = codecs.getreader(sys.stderr.encoding or locale.getpreferredencoding())(worker.stderr)
+    stderr = stderr.read().splitlines()
 
     def print_errors():
         for line in stderr:
@@ -138,38 +139,37 @@ class Engine(common.Engine):
 
     def get_filesystem_info(self):
         try:
-            tesseract = ipc.Subprocess(
-                [self.executable, '', '', '-l', 'nonexistent'],
-                stdin=ipc.DEVNULL,
-                stdout=ipc.DEVNULL,
-                stderr=ipc.PIPE,
-            )
+            with ipc.Subprocess(
+                    [self.executable, '', '', '-l', 'nonexistent'],
+                    stdin=ipc.DEVNULL,
+                    stdout=ipc.DEVNULL,
+                    stderr=ipc.PIPE,
+            ) as tesseract:
+                stderr = codecs.getreader(sys.stdout.encoding or locale.getpreferredencoding())(tesseract.stderr)
+
+                try:
+                    stderr = stderr.read()
+                    match = _ERROR_PATTERN.search(stderr)
+                    if match is None:
+                        raise errors.UnknownLanguageListError
+                    directory = match.group('dir')
+                    extension = match.group('ext')
+                    if not os.path.isdir(directory):
+                        raise errors.UnknownLanguageListError
+                finally:
+                    try:
+                        tesseract.wait()
+                    except ipc.CalledProcessError:
+                        pass
+                    else:
+                        # This should never happen. Recognizing non-existent image
+                        # should always fail. But apparently there are Subversion
+                        # snapshots of Tesseract in the wild that do it wrongly. Rather
+                        # than failing hard, issue a warning:
+                        warnings.warn('unexpected exit code from Tesseract', category=RuntimeWarning, stacklevel=2)
         except OSError:
             raise errors.UnknownLanguageListError
 
-        tesseract.stdout = codecs.getreader(sys.stdout.encoding or locale.getpreferredencoding())(tesseract.stdout)
-        tesseract.stderr = codecs.getreader(sys.stdout.encoding or locale.getpreferredencoding())(tesseract.stderr)
-
-        try:
-            stderr = tesseract.stderr.read()
-            match = _ERROR_PATTERN.search(stderr)
-            if match is None:
-                raise errors.UnknownLanguageListError
-            directory = match.group('dir')
-            extension = match.group('ext')
-            if not os.path.isdir(directory):
-                raise errors.UnknownLanguageListError
-        finally:
-            try:
-                tesseract.wait()
-            except ipc.CalledProcessError:
-                pass
-            else:
-                # This should never happen. Recognizing non-existent image
-                # should always fail. But apparently there are Subversion
-                # snapshots of Tesseract in the wild that do it wrongly. Rather
-                # than failing hard, issue a warning:
-                warnings.warn('unexpected exit code from Tesseract', category=RuntimeWarning, stacklevel=2)
         return directory, extension
 
     def list_languages(self):
@@ -217,14 +217,13 @@ class Engine(common.Engine):
     def recognize_plain_text(self, image, language, details=None, uax29=None):
         language = self.user_to_tesseract(language)
         with temporary.directory() as output_dir:
-            worker = ipc.Subprocess(
-                [self.executable, image.name, os.path.join(output_dir, 'tmp'), '-l', language] + self.extra_args,
-                stdin=ipc.DEVNULL,
-                stdout=ipc.DEVNULL,
-                stderr=ipc.PIPE,
-            )
-            worker.stderr = codecs.getreader(sys.stderr.encoding or locale.getpreferredencoding())(worker.stderr)
-            _wait_for_worker(worker)
+            with ipc.Subprocess(
+                    [self.executable, image.name, os.path.join(output_dir, 'tmp'), '-l', language] + self.extra_args,
+                    stdin=ipc.DEVNULL,
+                    stdout=ipc.DEVNULL,
+                    stderr=ipc.PIPE,
+            ) as worker:
+                _wait_for_worker(worker)
             with open(os.path.join(output_dir, 'tmp.txt'), 'rt') as file:
                 return common.Output(
                     file.read(),
@@ -246,14 +245,13 @@ class Engine(common.Engine):
             ] + self.extra_args + [tessconf_path]
             if character_details:
                 commandline += ['makebox']
-            worker = ipc.Subprocess(
-                commandline,
-                stdin=ipc.DEVNULL,
-                stdout=ipc.DEVNULL,
-                stderr=ipc.PIPE,
-            )
-            worker.stderr = codecs.getreader(sys.stderr.encoding or locale.getpreferredencoding())(worker.stderr)
-            _wait_for_worker(worker)
+            with ipc.Subprocess(
+                    commandline,
+                    stdin=ipc.DEVNULL,
+                    stdout=ipc.DEVNULL,
+                    stderr=ipc.PIPE,
+            ) as worker:
+                _wait_for_worker(worker)
             hocr_path = os.path.join(output_dir, 'tmp.hocr')
             if not os.path.exists(hocr_path):
                 hocr_path = hocr_path[:-4] + 'html'
@@ -266,14 +264,13 @@ class Engine(common.Engine):
                 if not os.path.exists(box_path):
                     # Tesseract << 3.04
                     del commandline[-2]
-                    worker = ipc.Subprocess(
-                        commandline,
-                        stdin=ipc.DEVNULL,
-                        stdout=ipc.DEVNULL,
-                        stderr=ipc.PIPE,
-                    )
-                    worker.stderr = codecs.getreader(sys.stderr.encoding or locale.getpreferredencoding())(worker.stderr)
-                    _wait_for_worker(worker)
+                    with ipc.Subprocess(
+                            commandline,
+                            stdin=ipc.DEVNULL,
+                            stdout=ipc.DEVNULL,
+                            stderr=ipc.PIPE,
+                    ) as worker:
+                        _wait_for_worker(worker)
                 with open(box_path, 'r') as box_file:
                     contents = contents.replace(
                         '</body>',

@@ -124,26 +124,27 @@ class Engine(common.Engine):
     def _get_languages(self):
         result = [self.default_language]
         try:
-            ocrad = ipc.Subprocess(
-                [self.executable, '--charset=help'],
-                stdin=ipc.DEVNULL,
-                stdout=ipc.DEVNULL,
-                stderr=ipc.PIPE,
-            )
+            with ipc.Subprocess(
+                    [self.executable, '--charset=help'],
+                    stdin=ipc.DEVNULL,
+                    stdout=ipc.DEVNULL,
+                    stderr=ipc.PIPE,
+            ) as ocrad:
+                try:
+                    line = ocrad.stderr.read()
+                    charsets = set(line.split()[1:])
+                    if 'iso-8859-9' in charsets:
+                        result += ['tur']
+                finally:
+                    try:
+                        ocrad.wait()
+                    except ipc.CalledProcessError:
+                        pass
+                    else:
+                        raise errors.UnknownLanguageListError
         except OSError:
             raise errors.UnknownLanguageListError
-        try:
-            line = ocrad.stderr.read()
-            charsets = set(line.split()[1:])
-            if 'iso-8859-9' in charsets:
-                result += ['tur']
-        finally:
-            try:
-                ocrad.wait()
-            except ipc.CalledProcessError:
-                pass
-            else:
-                raise errors.UnknownLanguageListError
+
         return result
 
     def check_language(self, language):
@@ -159,19 +160,19 @@ class Engine(common.Engine):
         charset = 'iso-8859-15'
         if language == 'tur':
             charset = 'iso-8859-9'
-        worker = ipc.Subprocess(
-            [self.executable, '--charset', charset, '--format=utf8', '-x'] + self.extra_args + ['-', image.name],
-            stdin=ipc.DEVNULL,
-            stdout=ipc.PIPE,
-        )
-        worker.stdout = codecs.getreader(sys.stdout.encoding or locale.getpreferredencoding())(worker.stdout)
-        try:
-            return common.Output(
-                worker.stdout.read(),
-                format_='orf',
-            )
-        finally:
-            worker.wait()
+        with ipc.Subprocess(
+                [self.executable, '--charset', charset, '--format=utf8', '-x'] + self.extra_args + ['-', image.name],
+                stdin=ipc.DEVNULL,
+                stdout=ipc.PIPE,
+        ) as worker:
+            stdout = codecs.getreader(sys.stdout.encoding or locale.getpreferredencoding())(worker.stdout)
+            try:
+                return common.Output(
+                    stdout.read(),
+                    format_='orf',
+                )
+            finally:
+                worker.wait()
 
     def extract_text(self, stream, **kwargs):
         settings = ExtractSettings(**kwargs)

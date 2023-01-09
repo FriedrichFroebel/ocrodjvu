@@ -135,10 +135,10 @@ class InPlaceSaver(Saver):
     def save(self, document, pages, djvu_path, sed_file):
         sed_file_name = os.path.abspath(sed_file.name)
         djvu_path = os.path.abspath(djvu_path)
-        djvused = ipc.Subprocess(
-            ['djvused', '-s', '-f', sed_file_name, djvu_path],
-        )
-        djvused.wait()
+        with ipc.Subprocess(
+                ['djvused', '-s', '-f', sed_file_name, djvu_path],
+        ) as djvused:
+            djvused.wait()
 
 
 class DryRunSaver(Saver):
