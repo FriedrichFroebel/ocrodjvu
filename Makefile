@@ -27,12 +27,10 @@ install_manpage:
 	install -d $(DESTDIR)$(mandir)/man1
 	install -m644 doc/*.1 $(DESTDIR)$(mandir)/man1/
 
-# FIXME: Fix broken `ipc.Subprocess.wait`.
 .PHONY: test
 test:
-	$(PYTHON) -m unittest discover --start-directory tests/
+	$(PYTHON) -m unittest discover --verbose --start-directory tests/
 
-# FIXME: Fix broken `ipc.Subprocess.wait`.
 .PHONY: update-coverage
 update-coverage:
 	coverage erase
