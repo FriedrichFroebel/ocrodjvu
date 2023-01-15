@@ -127,18 +127,15 @@ class Engine(common.Engine):
                     stdout=ipc.DEVNULL,
                     stderr=ipc.PIPE,
             ) as gocr:
-                try:
-                    line = gocr.stderr.read()
-                    m = _VERSION_RE.search(line.decode('UTF-8'))
-                    if not m:
-                        raise errors.EngineNotFoundError(Engine.name)
-                    version = tuple(map(int, m.groups()))
-                    if version >= (0, 40):
-                        return
-                    else:
-                        raise errors.EngineNotFoundError(Engine.name)
-                finally:
-                    gocr.wait()
+                line = gocr.stderr.read()
+                m = _VERSION_RE.search(line.decode('UTF-8'))
+                if not m:
+                    raise errors.EngineNotFoundError(Engine.name)
+                version = tuple(map(int, m.groups()))
+                if version >= (0, 40):
+                    return
+                else:
+                    raise errors.EngineNotFoundError(Engine.name)
         except OSError:
             raise errors.EngineNotFoundError(Engine.name)
 
@@ -157,13 +154,10 @@ class Engine(common.Engine):
                 stdin=ipc.DEVNULL,
                 stdout=ipc.PIPE,
         ) as worker:
-            try:
-                return common.Output(
-                    worker.stdout.read(),
-                    format_='gocr.xml',
-                )
-            finally:
-                worker.wait()
+            return common.Output(
+                worker.stdout.read(),
+                format_='gocr.xml',
+            )
 
     def extract_text(self, stream, **kwargs):
         settings = ExtractSettings(**kwargs)

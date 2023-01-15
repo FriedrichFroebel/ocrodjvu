@@ -107,6 +107,7 @@ class Subprocess(subprocess.Popen):
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(str.join(' ', map(pipes.quote, commandline)))
         self.__command = commandline[0]
+        self.__wait_called = False
         try:
             subprocess.Popen.__init__(self, *args, **kwargs)
         except EnvironmentError as ex:
@@ -119,14 +120,26 @@ class Subprocess(subprocess.Popen):
 
     def wait(self, *args, **kwargs):
         return_code = subprocess.Popen.wait(self, *args, **kwargs)
+        self.__wait_called = True
         if return_code > 0:
             raise CalledProcessError(return_code, self.__command)
         if return_code < 0:
             raise CalledProcessInterrupted(-return_code, self.__command)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        # Calling `self.wait` twice will always result in a return code > 0.
+        # For this reason, use a patched `__exit__` method if we already have called `self.wait` before.
+        # The original `subprocess.Popen.__exit__` method will always call `self.wait` at the end.
+        # In the best case, we would not need this special handling, but this would require us to further
+        # rewrite the code for the Tesseract and Cuneiform engine.
+        if self.__wait_called:
+            self._exit_without_wait(exc_type, exc_val, exc_tb)
+            return
+        subprocess.Popen.__exit__(self, exc_type, exc_val, exc_tb)
+
+    def _exit_without_wait(self, exc_type, exc_val, exc_tb):
         # Copy of `subprocess.Popen.__exit__`, but with `wait` removed as this will call the above `wait`
-        # method and lead to a return code > 0. We will call `wait` ourselves in every case.
+        # method and lead to a return code > 0.
         if self.stdout:
             self.stdout.close()
         if self.stderr:

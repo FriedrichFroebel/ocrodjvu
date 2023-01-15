@@ -159,7 +159,7 @@ class Engine(common.Engine):
                     stdin=ipc.DEVNULL,
                     stdout=ipc.DEVNULL,
             ) as worker:
-                worker.wait()
+                pass
             with open(hocr_file_name, 'r') as hocr_file:
                 return common.Output(
                     hocr_file.read(),

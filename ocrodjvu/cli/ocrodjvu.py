@@ -138,7 +138,7 @@ class InPlaceSaver(Saver):
         with ipc.Subprocess(
                 ['djvused', '-s', '-f', sed_file_name, djvu_path],
         ) as djvused:
-            djvused.wait()
+            pass
 
 
 class DryRunSaver(Saver):
