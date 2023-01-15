@@ -137,7 +137,8 @@ class InPlaceSaver(Saver):
         djvu_path = os.path.abspath(djvu_path)
         with ipc.Subprocess(
                 ['djvused', '-s', '-f', sed_file_name, djvu_path],
-        ) as djvused:
+        ):
+            # Implicitly call `wait()` on `__exit__`.
             pass
 
 

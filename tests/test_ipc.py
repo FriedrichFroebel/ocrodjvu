@@ -47,10 +47,11 @@ class ExceptionsTestCase(TestCase):
 
 
 class InitExceptionTestCase(TestCase):
+    """
+    https://bugs.python.org/issue32490
+    """
+
     def test_init_exc(self):
-        """
-        https://bugs.python.org/issue32490
-        """
         prog = 'ocrodjvu-nonexistent'
         with self.assertRaises(EnvironmentError) as ecm:
             ipc.Subprocess([prog])
