@@ -166,13 +166,10 @@ class Engine(common.Engine):
                 stdout=ipc.PIPE,
         ) as worker:
             stdout = codecs.getreader(sys.stdout.encoding or locale.getpreferredencoding())(worker.stdout)
-            try:
-                return common.Output(
-                    stdout.read(),
-                    format_='orf',
-                )
-            finally:
-                worker.wait()
+            return common.Output(
+                stdout.read(),
+                format_='orf',
+            )
 
     def extract_text(self, stream, **kwargs):
         settings = ExtractSettings(**kwargs)

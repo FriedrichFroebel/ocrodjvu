@@ -313,10 +313,7 @@ def main(argv=None):
                 ['djvused', '-e', 'n', os.path.abspath(options.path)],
                 stdout=ipc.PIPE,
         ) as djvused:
-            try:
-                n_pages = int(djvused.stdout.readline())
-            finally:
-                djvused.wait()
+            n_pages = int(djvused.stdout.readline())
         options.pages = range(1, n_pages + 1)
     page_iterator = iter(options.pages)
     sed_script = temporary.file(suffix='.djvused', mode='w+', encoding='UTF-8')
@@ -351,6 +348,5 @@ def main(argv=None):
             page_zone = Zone(page_text, page_size[1])
             process_page(page_zone, options)
         sys.stdout.write(HOCR_FOOTER)
-        djvused.wait()
 
 # vim:ts=4 sts=4 sw=4 et

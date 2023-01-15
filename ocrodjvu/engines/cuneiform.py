@@ -158,8 +158,9 @@ class Engine(common.Engine):
                     ] + self.extra_args + [image.name],
                     stdin=ipc.DEVNULL,
                     stdout=ipc.DEVNULL,
-            ) as worker:
-                worker.wait()
+            ):
+                # Implicitly call `wait()` on `__exit__`.
+                pass
             with open(hocr_file_name, 'r') as hocr_file:
                 return common.Output(
                     hocr_file.read(),

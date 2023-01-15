@@ -50,9 +50,7 @@ class Djvu2hocrTestCase(TestCase):
         self.assertEqual(stdout.getvalue(), '')
 
     def test_version(self):
-        """
-        https://bugs.debian.org/573496
-        """
+        # https://bugs.debian.org/573496
         stdout = io.StringIO()
         stderr = io.StringIO()
         with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
