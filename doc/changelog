@@ -4,11 +4,11 @@ ocrodjvu (0.13) unstable; urgency=low
   * Port to Python 3. At least Python 3.6 is required now.
   * Migrate tests from `nose` to plain `unittest` stdlib module.
   * Conform to PEP8 coding style.
-  * Use standardized `setup.py` based approach.
+  * Use standardized `setup.py`-based approach.
   * Clean-up directory structure to not use generic `lib`.
   * Drop support for outdated ocropus/ocropy engine.
 
- -- FriedrichFroebel  Sun, 15 Jan 2023 17:13:54 +0100
+ -- FriedrichFroebel <>  Sun, 15 Jan 2023 17:13:54 +0100
 
 ocrodjvu (0.12) unstable; urgency=low
 
