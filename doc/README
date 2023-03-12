@@ -97,9 +97,13 @@ The following software is required to rebuild the manual pages from source:
 Installation
 ============
 
-You can use ocrodjvu without installing it, straight out of unpacked source tarball or a VCS checkout.
+The easiest way to install ocrodjvu is from PyPI::
 
-It's also possible to install it system-wide with::
+    pip install ocrodjvu
+
+Alternatively, you can use ocrodjvu without installing it, straight out of an unpacked source tarball or a VCS checkout.
+
+It's also possible to install it from source for the current interpreter with::
 
    pip install .
 
