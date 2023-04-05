@@ -96,6 +96,9 @@ The following software is required to rebuild the manual pages from source:
 
 Installation
 ============
+Prepare the environment in Debian
+
+    sudo apt install pkg-config djvubind
 
 The easiest way to install ocrodjvu is from PyPI::
 
