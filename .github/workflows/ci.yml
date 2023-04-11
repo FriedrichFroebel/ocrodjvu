@@ -26,6 +26,8 @@ jobs:
           djvulibre: latest
         - python: '3.11'
           djvulibre: latest
+        - python: '3.12-dev'
+          djvulibre: latest
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} with djvulibre ${{ matrix.djvulibre }}
     steps:
