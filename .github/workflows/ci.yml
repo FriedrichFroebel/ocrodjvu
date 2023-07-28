@@ -100,6 +100,7 @@ jobs:
     - name: run flake8
       run:
         python -m flake8 .
+      if: ${{ matrix.python != '3.12-dev' }}
     - name: check docs
       run:
         make -C doc check
