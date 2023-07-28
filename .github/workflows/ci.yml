@@ -70,7 +70,7 @@ jobs:
     # Cython 3.0 broke the old code.
     - name: install Cython
       run:
-        python -m pip install cython<3
+        python -m pip install "cython<3"
       if: ${{ matrix.djvulibre == 'legacy' }}
     - name: install djuvlibre master
       run: |
