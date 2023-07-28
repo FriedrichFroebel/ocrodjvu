@@ -66,6 +66,12 @@ jobs:
     - name: install Cython
       run:
         python -m pip install cython
+      if: ${{ matrix.djvulibre != 'legacy' }}
+    # Cython 3.0 broke the old code.
+    - name: install Cython
+      run:
+        python -m pip install cython<3
+      if: ${{ matrix.djvulibre == 'legacy' }}
     - name: install djuvlibre master
       run: |
         url="https://github.com/FriedrichFroebel/python-djvulibre/archive/python3.tar.gz"
