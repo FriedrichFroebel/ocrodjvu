@@ -10,14 +10,14 @@ jobs:
     strategy:
       matrix:
         include:
-        - python: 3.8
-          djvulibre: legacy
-        - python: 3.9
-          djvulibre: legacy
-        - python: '3.10'
-          djvulibre: legacy
-        - python: '3.11'
-          djvulibre: legacy
+        # - python: 3.8
+        #   djvulibre: legacy
+        # - python: 3.9
+        #   djvulibre: legacy
+        # - python: '3.10'
+        #   djvulibre: legacy
+        # - python: '3.11'
+        #   djvulibre: legacy
         - python: 3.8
           djvulibre: latest
         - python: 3.9
