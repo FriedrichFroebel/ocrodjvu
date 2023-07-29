@@ -70,9 +70,9 @@ jobs:
         mkdir -p deps/
         python -m pip download --dest deps --no-binary python-djvulibre --no-deps python-djvulibre
         cd deps
-        tar -xvzf python-djvulibre*
-        ls -l
-        cd python-djvulibre-*
+        mkdir -p python-djvulibre/
+        tar -xvzf python-djvulibre* --strip-components=1 -C python-djvulibre
+        cd python-djvulibre
         python setup.py install
       if: ${{ matrix.djvulibre == 'legacy' }}
     - name: install djuvlibre master
