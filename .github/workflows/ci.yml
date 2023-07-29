@@ -65,7 +65,7 @@ jobs:
         python -m pip install --upgrade wheel
     # Cython 3.0 broke the old code.
     - name: install djvulibre legacy
-      run:
+      run: |
         python -m pip install "cython<3"
         mkdir -p deps/
         python -m pip download --dest deps --no-binary python-djvulibre --no-deps python-djvulibre
