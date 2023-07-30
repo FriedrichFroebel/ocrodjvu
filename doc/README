@@ -48,9 +48,13 @@ The following software is required to run ocrodjvu:
   + GOCR_ ≥ 0.40
   + Tesseract_ ≥ 2.00
 
-* DjVuLibre_ ≥ 3.5.21
+* DjVuLibre_ ≥ 3.5.21 (≥ 3.5.26 for latest python-djvulibre)
 
 * python-djvulibre_ ≥ 0.4
+
+  + Please note that installing this package currently is a bit more complicated since Cython 3 has been relased on 2023-07-17.
+  + While `Issue #11`_ is unresolved, PyPI releases require some workarounds (installing the package from the source archive with the deprecated ``python setup.py install` beforehand).
+  + Alternative: Install the latest package version from `Git <python-djvulibre-git_>`_.
 
 * lxml_ ≥ 2.0
 
@@ -83,6 +87,10 @@ The following software is required to rebuild the manual pages from source:
    http://djvu.sourceforge.net/
 .. _python-djvulibre:
    https://jwilk.net/software/python-djvulibre
+.. _Issue #11:
+   https://github.com/FriedrichFroebel/python-djvulibre/issues/11
+.. _python-djvulibre-git:
+   https://github.com/FriedrichFroebel/python-djvulibre
 .. _lxml:
    https://lxml.de/
 .. _PyICU:
