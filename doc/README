@@ -53,7 +53,7 @@ The following software is required to run ocrodjvu:
 * python-djvulibre_ ≥ 0.4
 
   + Please note that installing this package currently is a bit more complicated since Cython 3 has been relased on 2023-07-17.
-  + While `Issue #11`_ is unresolved, PyPI releases require some workarounds (installing the package from the source archive with the deprecated ``python setup.py install` beforehand).
+  + While `Issue #11`_ is unresolved, PyPI releases require some workarounds (installing the package from the source archive with the deprecated ``python setup.py install`` beforehand).
   + Alternative: Install the latest package version from `Git <python-djvulibre-git_>`_.
 
 * lxml_ ≥ 2.0
