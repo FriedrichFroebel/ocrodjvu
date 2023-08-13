@@ -106,7 +106,7 @@ jobs:
       if: ${{ matrix.python != '3.12-dev' }}
     - name: run mypy
       run: |
-        python -m pip install mypy
+        python -m pip install mypy types-html5lib types-Pillow lxml-stubs
         mypy ocrodjvu/ tests/
     - name: check docs
       run:
