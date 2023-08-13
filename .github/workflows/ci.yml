@@ -107,7 +107,7 @@ jobs:
     - name: run mypy
       run: |
         python -m pip install mypy
-        mypy ocrodjvu/ private/ tests/
+        mypy ocrodjvu/ tests/
     - name: check docs
       run:
         make -C doc check
