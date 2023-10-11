@@ -26,7 +26,7 @@ jobs:
           djvulibre: latest
         - python: '3.11'
           djvulibre: latest
-        - python: '3.12-dev'
+        - python: '3.12'
           djvulibre: latest
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} with djvulibre ${{ matrix.djvulibre }}
@@ -103,7 +103,6 @@ jobs:
     - name: run flake8
       run:
         python -m flake8 .
-      if: ${{ matrix.python != '3.12-dev' }}
     - name: check docs
       run:
         make -C doc check
