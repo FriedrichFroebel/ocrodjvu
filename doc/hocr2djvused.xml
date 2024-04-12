@@ -42,8 +42,9 @@
         &p; reads one or more <ulink url='http://kba.github.io/hocr-spec/1.2/'>hOCR</ulink> files (as
 
         produced by
-        <ulink url='https://code.google.com/p/ocropus/'><application>OCRopus</application></ulink> or
         <ulink url='https://launchpad.net/cuneiform-linux'><application>Cuneiform</application></ulink> or
+        <ulink url='https://www.gnu.org/software/ocrad/'><application>Ocrad</application></ulink> or
+        <ulink url='https://www-e.uni-magdeburg.de/jschulen/ocr/'><application>GOCR</application></ulink> or
         <ulink url='https://github.com/tesseract-ocr/tesseract'><application>Tesseract</application></ulink>)
         and converts them to a <command>djvused</command> script.
     </para>
@@ -179,7 +180,7 @@
     <title>Bugs</title>
     <para>
         Please report bugs at:
-        <ulink url='https://github.com/jwilk/ocrodjvu/issues'/>
+        <ulink url='https://github.com/FriedrichFroebel/ocrodjvu/issues'/>
     </para>
 </refsection>
 
