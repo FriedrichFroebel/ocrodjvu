@@ -1,5 +1,6 @@
 Missing tests
 =============
+
 * for non-ASCII filenames
 * for Cuneiform hOCR with inline formatting
 * for Cuneiform hOCR with bounding boxes for whitespace characters
@@ -19,11 +20,11 @@ Missing tests
 
 Documentation
 =============
+
 * write better documentation for -X
 
 Miscellanea
+
 ===========
 * ``--debug`` should enable debug logging
 * don't use ``<script>``
-
-.. vim:ft=rst ts=3 sts=3 sw=3 et tw=72

@@ -1,6 +1,5 @@
-# encoding=UTF-8
-
 # Copyright © 2011-2022 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2022-2024 FriedrichFroebel
 #
 # This file is part of ocrodjvu.
 #
@@ -24,5 +23,3 @@ class ArgumentParser(argparse.ArgumentParser):
         if status:
             status = errors.EXIT_FATAL
         argparse.ArgumentParser.exit(self, status=status, message=message)
-
-# vim:ts=4 sts=4 sw=4 et

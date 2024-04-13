@@ -1,6 +1,5 @@
-# encoding=UTF-8
-
 # Copyright © 2010-2015 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2022-2024 FriedrichFroebel
 #
 # This file is part of ocrodjvu.
 #
@@ -71,5 +70,3 @@ class ImageIoTestCase(TestCase):
                 for bits_per_pixel in 1, 24:
                     with self.subTest(base_filename=base_filename, image_format=image_format, bpp=bits_per_pixel):
                         self._test_from_file(base_filename=base_filename, image_format=image_format(bits_per_pixel))
-
-# vim:ts=4 sts=4 sw=4 et

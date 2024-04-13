@@ -1,6 +1,5 @@
-# encoding=UTF-8
-
 # Copyright © 2008-2017 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2022-2024 FriedrichFroebel
 #
 # This file is part of ocrodjvu.
 #
@@ -94,5 +93,3 @@ def main(argv=None):
         sys.stdout.write(f'select {i + 1}\nremove-txt\nset-txt\n')
         text_zones.print_sexpr(text, sys.stdout, width=80)
         sys.stdout.write('\n.\n\n')
-
-# vim:ts=4 sts=4 sw=4 et

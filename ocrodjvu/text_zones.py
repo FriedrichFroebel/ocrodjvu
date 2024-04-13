@@ -1,6 +1,5 @@
-# encoding=UTF-8
-
 # Copyright © 2008-2022 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2022-2024 FriedrichFroebel
 #
 # This file is part of ocrodjvu.
 #
@@ -225,5 +224,3 @@ def group_words(zones, details, word_break_iterator):
 
 def print_sexpr(expr, file, width=None):
     return expr.print_into(file, width=width, escape_unicode=False)
-
-# vim:ts=4 sts=4 sw=4 et

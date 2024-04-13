@@ -1,6 +1,5 @@
-# encoding=UTF-8
-
 # Copyright © 2013-2016 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2022-2024 FriedrichFroebel
 #
 # This file is part of ocrodjvu.
 #
@@ -59,5 +58,3 @@ def b_to_t(lang, permissive=False):
         else:
             return lang
     return _B_TO_T.get(lang, lang)
-
-# vim:ts=4 sts=4 sw=4 et

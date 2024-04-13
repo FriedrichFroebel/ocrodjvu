@@ -1,6 +1,5 @@
-# encoding=UTF-8
-
 # Copyright © 2018 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2022-2024 FriedrichFroebel
 #
 # This file is part of ocrodjvu.
 #
@@ -50,5 +49,3 @@ class OcrTestCase(TestCase):
             for layers in 'mask', 'all':
                 with self.subTest(engine=engine, layers=layers):
                     self._test_ocr(engine=engine, layers=layers)
-
-# vim:ts=4 sts=4 sw=4 et

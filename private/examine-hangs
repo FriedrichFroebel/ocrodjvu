@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # Copyright © 2019 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2022-2024 FriedrichFroebel
 #
 # This file is part of ocrodjvu.
 #
@@ -49,5 +50,3 @@ do
     printf '\n'
 done
 printf '%s\n' "$dbar"
-
-# vim:ts=4 sts=4 sw=4 et

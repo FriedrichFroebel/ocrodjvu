@@ -1,6 +1,5 @@
-# encoding=UTF-8
-
 # Copyright © 2008-2022 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2022-2024 FriedrichFroebel
 #
 # This file is part of ocrodjvu.
 #
@@ -643,5 +642,3 @@ def main(argv=None):
         temp_dir = context.close()
         if temp_dir is not None:
             LOGGER.info(f'Intermediate files were left in the {temp_dir!r} directory.')
-
-# vim:ts=4 sts=4 sw=4 et

@@ -1,4 +1,5 @@
 # Copyright © 2012-2019 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2022-2024 FriedrichFroebel
 #
 # This file is part of ocrodjvu.
 #
@@ -45,5 +46,3 @@ clean:
 	rm -f *.tmp
 
 .error = GNU make is required
-
-# vim:ts=4 sts=4 sw=4 noet

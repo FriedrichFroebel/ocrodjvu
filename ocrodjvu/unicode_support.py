@@ -1,6 +1,5 @@
-# encoding=UTF-8
-
 # Copyright © 2008-2018 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2022-2024 FriedrichFroebel
 #
 # This file is part of ocrodjvu.
 #
@@ -54,5 +53,3 @@ def word_break_iterator(text, locale=None):
     break_iterator = icu.BreakIterator.createWordInstance(locale)
     break_iterator.setText(text)
     return break_iterator
-
-# vim:ts=4 sts=4 sw=4 et

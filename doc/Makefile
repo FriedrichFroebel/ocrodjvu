@@ -1,4 +1,5 @@
 # Copyright © 2018-2019 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2022-2024 FriedrichFroebel
 #
 # This file is part of ocrodjvu.
 #
@@ -49,5 +50,3 @@ check-xml: $(xml-files)
 .PHONY: clean
 clean:
 	rm -f *.1
-
-# vim:ts=4 sts=4 sw=4 noet

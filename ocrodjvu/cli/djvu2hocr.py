@@ -1,6 +1,5 @@
-# encoding=UTF-8
-
 # Copyright © 2009-2022 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2022-2024 FriedrichFroebel
 #
 # This file is part of ocrodjvu.
 #
@@ -348,5 +347,3 @@ def main(argv=None):
             page_zone = Zone(page_text, page_size[1])
             process_page(page_zone, options)
         sys.stdout.write(HOCR_FOOTER)
-
-# vim:ts=4 sts=4 sw=4 et

@@ -127,5 +127,3 @@ jobs:
         man 1 ocrodjvu | grep -A 10 -w OCRODJVU
         man 1 djvu2hocr | grep -A 10 -w DJVU2HOCR
         man 1 hocr2djvused | grep -A 10 -w HOCR2DJVUSED
-
-# vim:ts=2 sts=2 sw=2 et

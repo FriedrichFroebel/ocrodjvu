@@ -1,6 +1,5 @@
-# encoding=UTF-8
-
 # Copyright © 2010-2016 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2022-2024 FriedrichFroebel
 #
 # This file is part of ocrodjvu.
 #
@@ -92,5 +91,3 @@ class CuneiformMultiLanguageTestCase(CuneiformTestCase):
     ]
 
     fake_executable = 'fake-cuneiform-multilang'
-
-# vim:ts=4 sts=4 sw=4 et

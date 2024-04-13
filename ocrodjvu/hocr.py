@@ -1,6 +1,5 @@
-# encoding=UTF-8
-
 # Copyright © 2008-2022 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2022-2024 FriedrichFroebel
 #
 # This file is part of ocrodjvu.
 #
@@ -477,5 +476,3 @@ __all__ = [
     'extract_text',
     'TEXT_DETAILS_LINE', 'TEXT_DETAILS_WORD', 'TEXT_DETAILS_CHARACTER'
 ]
-
-# vim:ts=4 sts=4 sw=4 et

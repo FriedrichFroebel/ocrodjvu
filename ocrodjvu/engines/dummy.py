@@ -1,6 +1,5 @@
-# encoding=UTF-8
-
 # Copyright © 2018-2019 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2022-2024 FriedrichFroebel
 #
 # This file is part of ocrodjvu.
 #
@@ -35,5 +34,3 @@ class Engine(common.Engine):
         bbox = text_zones.BBox(0, 0, 0, 0)
         page = text_zones.Zone(text_zones.const.TEXT_ZONE_PAGE, bbox, [])
         return [page.sexpr]
-
-# vim:ts=4 sts=4 sw=4 et
