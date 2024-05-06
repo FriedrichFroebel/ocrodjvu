@@ -2,5 +2,5 @@
 # as soon as they get released by pinning them here and
 # letting `dependabot` update them for new releases.
 lxml==5.2.1
-PyICU==2.13 
+PyICU==2.13.1 
 html5lib==1.1
