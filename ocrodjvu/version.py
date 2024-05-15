@@ -15,7 +15,7 @@
 import argparse
 import sys
 
-__version__ = '0.13'
+__version__ = '0.13.1'
 
 
 class VersionAction(argparse.Action):
