@@ -1,3 +1,10 @@
+ocrodjvu (0.13.1) unstable; urgency=low
+
+  [ FriedrichFroebel ]
+  * Avoid deprecation warnings with the latest `lxml` versions.
+
+ -- FriedrichFroebel <>  Wed, 15 May 2024 16:42:10 +0200
+
 ocrodjvu (0.13) unstable; urgency=low
 
   [ FriedrichFroebel ]
