@@ -19,8 +19,8 @@ Interprocess communication.
 import errno
 import logging
 import os
-import pipes
 import re
+import shlex
 import signal
 import subprocess
 
@@ -104,7 +104,7 @@ class Subprocess(subprocess.Popen):
         except KeyError:
             commandline = args[0]
         if logger.isEnabledFor(logging.DEBUG):
-            logger.debug(str.join(' ', map(pipes.quote, commandline)))
+            logger.debug(str.join(' ', map(shlex.quote, commandline)))
         self.__command = commandline[0]
         self.__wait_called = False
         try:
