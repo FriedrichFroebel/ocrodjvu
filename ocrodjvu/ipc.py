@@ -19,8 +19,8 @@ Interprocess communication.
 import errno
 import logging
 import os
-import pipes
 import re
+import shlex
 import signal
 import subprocess
 
