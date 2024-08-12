@@ -59,10 +59,6 @@ jobs:
           cuneiform
           ocrad
           gocr
-    - name: apt install for lxml
-      run: |
-          sudo apt-get install libxml2-dev libxslt-dev
-      if: ${{ matrix.python == '3.13-dev' }}
     - name: update PIP
       run:
         python -m pip install --upgrade pip
