@@ -1,6 +1,6 @@
 # Ensure that we always test against the latest versions
 # as soon as they get released by pinning them here and
 # letting `dependabot` update them for new releases.
-lxml==5.2.2
+lxml==5.3.0
 PyICU==2.13.1 
 html5lib==1.1
