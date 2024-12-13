@@ -9,23 +9,7 @@ jobs:
   main:
     strategy:
       matrix:
-        include:
-        - python: '3.9'
-          djvulibre: legacy
-        - python: '3.10'
-          djvulibre: legacy
-        - python: '3.11'
-          djvulibre: legacy
-        - python: '3.9'
-          djvulibre: latest
-        - python: '3.10'
-          djvulibre: latest
-        - python: '3.11'
-          djvulibre: latest
-        - python: '3.12'
-          djvulibre: latest
-        - python: '3.13'
-          djvulibre: latest
+        python: ['3.9', '3.10', '3.11', '3.12', '3.13']
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} with djvulibre ${{ matrix.djvulibre }}
     steps:
@@ -61,28 +45,6 @@ jobs:
     - name: install wheel
       run:
         python -m pip install --upgrade wheel
-    # Cython 3.0 broke the old code.
-    - name: install djvulibre legacy
-      run: |
-        python -m pip install "cython<3"
-        mkdir -p deps/
-        python -m pip download --dest deps --no-binary python-djvulibre --no-deps python-djvulibre
-        cd deps
-        mkdir -p python-djvulibre/
-        tar -xvzf python-djvulibre-* --strip-components=1 -C python-djvulibre
-        cd python-djvulibre
-        python setup.py install
-      if: ${{ matrix.djvulibre == 'legacy' }}
-    - name: install djuvlibre master
-      run: |
-        url="https://github.com/FriedrichFroebel/python-djvulibre/archive/python3.tar.gz"
-        mkdir -p deps/
-        wget "$url" -O deps/python-djvulibre.tar.gz
-        cd deps
-        tar -xvzf python-djvulibre.tar.gz
-        cd python-djvulibre-python3/
-        python -m pip install .
-      if: ${{ matrix.djvulibre != 'legacy' }}
     - name: install package
       run:
         python -m pip install .[dev,docs]

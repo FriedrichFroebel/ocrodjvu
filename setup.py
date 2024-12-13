@@ -42,7 +42,7 @@ setup(
     include_package_data=True,
     python_requires=">=3.6, <4",
     install_requires=[
-        'python-djvulibre>=0.4',
+        'djvulibre-python>=0.9',
         'lxml>=2.0',
     ],
     extras_require={
