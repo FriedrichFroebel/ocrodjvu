@@ -11,7 +11,7 @@ jobs:
       matrix:
         python: ['3.9', '3.10', '3.11', '3.12', '3.13']
     runs-on: ubuntu-latest
-    name: Python ${{ matrix.python }} with djvulibre ${{ matrix.djvulibre }}
+    name: Python ${{ matrix.python }}
     steps:
     - uses: actions/checkout@v4
     - name: set up Python
