@@ -14,6 +14,7 @@
 
 import argparse
 import sys
+from contextlib import contextmanager
 
 from ocrodjvu import cli
 from ocrodjvu import hocr
@@ -57,7 +58,7 @@ class ArgumentParser(cli.ArgumentParser):
         self.add_argument('--html5', dest='html5', action='store_true', help='use HTML5 parser')
         self.add_argument('--fix-utf8', dest='fix_utf8', action='store_true', help='attempt to fix UTF-8 encoding issues')
         self.add_argument(
-            'input_files', metavar='FILE', nargs='*', type=argparse.FileType('r'), default=[sys.stdin],
+            'input_files', metavar='FILE', nargs='*', type=str, default='-',
             help='hOCR file to parse (default: standard input)'
         )
 
@@ -71,19 +72,29 @@ class ArgumentParser(cli.ArgumentParser):
         return options
 
 
+@contextmanager
+def _open_file(input_file):
+    if input_file == '-':
+        yield sys.stdin
+    else:
+        with open(input_file, mode='r') as fd:
+            yield fd
+
+
 def get_texts(options):
     for input_file in options.input_files:
-        texts = hocr.extract_text(
-            input_file,
-            rotation=options.rotation,
-            details=options.details,
-            uax29=options.uax29,
-            html5=options.html5,
-            fix_utf8=options.fix_utf8,
-            page_size=options.page_size,
-        )
-        for text in texts:
-            yield text
+        with _open_file(input_file):
+            texts = hocr.extract_text(
+                input_file,
+                rotation=options.rotation,
+                details=options.details,
+                uax29=options.uax29,
+                html5=options.html5,
+                fix_utf8=options.fix_utf8,
+                page_size=options.page_size,
+            )
+            for text in texts:
+                yield text
 
 
 def main(argv=None):
