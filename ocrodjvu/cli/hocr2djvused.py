@@ -83,9 +83,9 @@ def _open_file(input_file):
 
 def get_texts(options):
     for input_file in options.input_files:
-        with _open_file(input_file):
+        with _open_file(input_file) as fd:
             texts = hocr.extract_text(
-                input_file,
+                fd,
                 rotation=options.rotation,
                 details=options.details,
                 uax29=options.uax29,
