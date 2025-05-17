@@ -347,3 +347,4 @@ def main(argv=None):
             page_zone = Zone(page_text, page_size[1])
             process_page(page_zone, options)
         sys.stdout.write(HOCR_FOOTER)
+    sed_script.close()
