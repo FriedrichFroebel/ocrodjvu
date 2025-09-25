@@ -3,5 +3,5 @@
 # letting `dependabot` update them for new releases.
 djvulibre-python==0.9.3
 lxml==6.0.2
-PyICU==2.15.2 
+PyICU==2.15.3 
 html5lib==1.1
