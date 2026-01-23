@@ -60,8 +60,11 @@ class ImageIoTestCase(TestCase):
                 if result.palette is None:
                     self.assertIsNone(expected.palette)
                 else:
-                    self.assertEqual(list(result.palette.getdata()), list(expected.palette.getdata()))
-                self.assertEqual(list(result.getdata()), list(expected.getdata()))
+                    self.assertEqual(
+                        list(result.palette.get_flattened_data()),
+                        list(expected.palette.get_flattened_data())
+                    )
+                self.assertEqual(list(result.get_flattened_data()), list(expected.get_flattened_data()))
 
     def test_from_file(self):
         for djvu_filename in sorted_glob(os.path.join(self.here, '*.djvu')):
