@@ -61,8 +61,8 @@ class ImageIoTestCase(TestCase):
                     self.assertIsNone(expected.palette)
                 else:
                     self.assertEqual(
-                        list(result.palette.get_flattened_data()),
-                        list(expected.palette.get_flattened_data())
+                        list(result.palette.getdata()),
+                        list(expected.palette.getdata())
                     )
                 self.assertEqual(list(result.get_flattened_data()), list(expected.get_flattened_data()))
 
