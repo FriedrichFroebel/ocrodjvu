@@ -41,7 +41,7 @@ setup(
         exclude=['tests', 'tests.*', 'private', 'private.*']
     ),
     include_package_data=True,
-    python_requires=">=3.10, <4",
+    python_requires=">=3.11, <4",
     install_requires=[
         'djvulibre-python>=0.9',
         'lxml>=2.0',
@@ -51,7 +51,7 @@ setup(
             'coverage',
             'flake8',
             'pep8-naming',
-            'Pillow',
+            'pillow',
         ],
         'docs': [
             'docutils',
