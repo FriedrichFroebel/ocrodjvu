@@ -77,14 +77,14 @@ def smart_repr(s, encoding=None):
         return repr(s)
     u = u.decode(encoding)
     u = _SPECIAL_CHARS_REPLACE(_special_chars_escape, u)
-    return "'{0}'".format(u)
+    return f"'{u}'"
 
 
 class EncodingWarning(UserWarning):
     pass
 
 
-_control_characters_regex = re.compile('[{0}]'.format(''.join(
+_control_characters_regex = re.compile('[{}]'.format(''.join(
     ch for ch in map(chr, range(32))
     if ch not in '\n\r\t'
 )).encode('UTF-8'))
@@ -116,7 +116,7 @@ def sanitize_utf8(text):
             category=EncodingWarning,
             stacklevel=2,
         )
-        text = _control_characters_regex.sub(u'\N{REPLACEMENT CHARACTER}'.encode('UTF-8'), text)
+        text = _control_characters_regex.sub('\N{REPLACEMENT CHARACTER}'.encode(), text)
     # There are other code points that are not allowed in XML (or even: not
     # allowed in UTF-8), but which Python happily accept. However, they haven't
     # seemed to occur in real-world documents.

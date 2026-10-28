@@ -153,7 +153,7 @@ class Zone:
                 f'the exterior zone is {self.type} rather than {const.TEXT_ZONE_PAGE}'
             )
             assert self.bbox[:2] == (0, 0), (
-                'top-left page corner is ({0}, {1}) rather than (0, 0)'.format(*self.bbox[:2])
+                'top-left page corner is ({}, {}) rather than (0, 0)'.format(*self.bbox[:2])
             )
             page_size = self.bbox[2:]
             if (rotation // 90) & 1:

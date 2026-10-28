@@ -223,7 +223,7 @@ class Engine(common.Engine):
                     stderr=ipc.PIPE,
             ) as worker:
                 _wait_for_worker(worker)
-            with open(os.path.join(output_dir, 'tmp.txt'), 'rt') as file:
+            with open(os.path.join(output_dir, 'tmp.txt')) as file:
                 return common.Output(
                     file.read(),
                     format_='txt',
@@ -234,7 +234,7 @@ class Engine(common.Engine):
         character_details = details < text_zones.TEXT_DETAILS_WORD or (uax29 and details <= text_zones.TEXT_DETAILS_WORD)
         with temporary.directory() as output_dir:
             tessconf_path = os.path.join(output_dir, 'tessconf')
-            with open(tessconf_path, 'wt') as tessconf:
+            with open(tessconf_path, 'w') as tessconf:
                 # Tesseract 3.00 does not come with any config file to enable hOCR
                 # output. Let's create our own one.
                 print('tessedit_create_hocr T', file=tessconf)
@@ -254,7 +254,7 @@ class Engine(common.Engine):
             hocr_path = os.path.join(output_dir, 'tmp.hocr')
             if not os.path.exists(hocr_path):
                 hocr_path = hocr_path[:-4] + 'html'
-            with open(os.path.join(output_dir, hocr_path), 'r') as hocr_file:
+            with open(os.path.join(output_dir, hocr_path)) as hocr_file:
                 contents = hocr_file.read()
             if character_details:
                 assert commandline[-1] == 'makebox'
@@ -270,7 +270,7 @@ class Engine(common.Engine):
                             stderr=ipc.PIPE,
                     ) as worker:
                         _wait_for_worker(worker)
-                with open(box_path, 'r') as box_file:
+                with open(box_path) as box_file:
                     contents = contents.replace(
                         '</body>',
                         _BBOX_EXTRAS_TEMPLATE.format(box_file.read()) + '</body>'

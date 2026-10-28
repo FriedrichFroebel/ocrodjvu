@@ -77,7 +77,7 @@ def _open_file(input_file):
     if input_file == '-':
         yield sys.stdin
     else:
-        with open(input_file, mode='r') as fd:
+        with open(input_file) as fd:
             yield fd
 
 
@@ -93,8 +93,7 @@ def get_texts(options):
                 fix_utf8=options.fix_utf8,
                 page_size=options.page_size,
             )
-            for text in texts:
-                yield text
+            yield from texts
 
 
 def main(argv=None):

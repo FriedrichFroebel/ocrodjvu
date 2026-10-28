@@ -21,7 +21,7 @@ ROOT_DIRECTORY = Path(__file__).parent.resolve()
 
 def get_version():
     changelog = ROOT_DIRECTORY / 'doc' / 'changelog'
-    with open(changelog, mode='r') as fd:
+    with open(changelog) as fd:
         line = fd.readline()
     return line.split()[1].strip('()')
 

@@ -22,7 +22,6 @@ import string
 import sys
 import threading
 import traceback
-from typing import Union
 
 from ocrodjvu import cli
 from ocrodjvu import engines
@@ -72,7 +71,7 @@ class BundledSaver(Saver):
     options = '-o', '--save-bundled'
 
     def __init__(self, save_path):
-        super(BundledSaver, self).__init__()
+        super().__init__()
         self._ips = InPlaceSaver()
         self._save_path = os.path.abspath(save_path)
 
@@ -95,7 +94,7 @@ class IndirectSaver(Saver):
     options = '-i', '--save-indirect'
 
     def __init__(self, save_path):
-        super(IndirectSaver, self).__init__()
+        super().__init__()
         self._ips = InPlaceSaver()
         self._save_path = os.path.abspath(save_path)
 
@@ -114,7 +113,7 @@ class ScriptSaver(Saver):
     options = '--save-script',
 
     def __init__(self, save_path):
-        super(ScriptSaver, self).__init__()
+        super().__init__()
         self._save_path = os.path.abspath(save_path)
 
     def save(self, document, pages, djvu_path, sed_file):
@@ -353,7 +352,7 @@ class ArgumentParser(cli.ArgumentParser):
         if options.save_raw_ocr_dir is not None:
             try:
                 os.stat(os.path.join(options.save_raw_ocr_dir, ''))
-            except EnvironmentError as ex:
+            except OSError as ex:
                 errors.fatal(f'cannot open {ex.filename!r}: {ex[1]}')
             try:
                 expand_template(options.raw_ocr_filename_template, pageno=0, pageid='')
@@ -422,7 +421,7 @@ class Context(djvu.decode.Context):
         # noinspection PyAttributeOutsideInit
         self._image_format = self._options.engine.image_format(bpp)
 
-    def _temp_file(self, name, mode='w+', encoding: Union[str, None] = locale.getpreferredencoding(), auto_remove=True):
+    def _temp_file(self, name, mode='w+', encoding: str | None = locale.getpreferredencoding(), auto_remove=True):
         path = os.path.join(self._temp_dir, name)
         file = open(path, mode=mode, encoding=encoding)
         if not self._debug and auto_remove:

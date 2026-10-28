@@ -24,7 +24,7 @@ class VersionAction(argparse.Action):
     """
 
     def __init__(self, option_strings, dest=argparse.SUPPRESS):
-        super(VersionAction, self).__init__(
+        super().__init__(
             option_strings=option_strings,
             dest=dest,
             nargs=0,
@@ -33,7 +33,7 @@ class VersionAction(argparse.Action):
 
     def __call__(self, parser, namespace, values, option_string=None):
         print(f'{parser.prog} {__version__}')
-        print('+ Python {0}.{1}.{2}'.format(*sys.version_info))
+        print('+ Python {}.{}.{}'.format(*sys.version_info))
         try:
             djvu_decode = sys.modules['djvu.decode']
         except LookupError:  # no coverage

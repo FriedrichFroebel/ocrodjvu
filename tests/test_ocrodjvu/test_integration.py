@@ -29,7 +29,7 @@ engines = 'tesseract', 'cuneiform', 'gocr', 'ocrad'
 class OcrTestCase(TestCase):
     def _test_ocr(self, engine, layers):
         if not shutil.which(engine):
-            raise self.SkipTest('{cmd} not found'.format(cmd=engine))
+            raise self.SkipTest(f'{engine} not found')
         remove_logging_handlers('ocrodjvu.')
         here = os.path.dirname(__file__)
         here = os.path.abspath(here)

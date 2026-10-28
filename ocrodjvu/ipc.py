@@ -36,11 +36,11 @@ if os.name == 'posix':
 
 def get_signal_names():
     signame_pattern = re.compile('^SIG[A-Z0-9]*$')
-    data = dict(
-        (name, getattr(signal, name))
+    data = {
+        name: getattr(signal, name)
         for name in dir(signal)
         if signame_pattern.match(name)
-    )
+    }
     try:
         if data['SIGABRT'] == data['SIGIOT']:
             del data['SIGIOT']
@@ -51,7 +51,7 @@ def get_signal_names():
             del data['SIGCLD']
     except KeyError:  # no coverage
         pass
-    return dict((no, name) for name, no in data.items())
+    return {no: name for name, no in data.items()}
 
 
 CalledProcessError = subprocess.CalledProcessError
@@ -109,7 +109,7 @@ class Subprocess(subprocess.Popen):
         self.__wait_called = False
         try:
             subprocess.Popen.__init__(self, *args, **kwargs)
-        except EnvironmentError as ex:
+        except OSError as ex:
             suffix = ': ' + repr(self.__command)
             if ex.strerror.endswith(suffix):
                 # https://bugs.python.org/issue32490

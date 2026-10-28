@@ -171,7 +171,7 @@ class SanitizeUtf8TestCase(TestCase):
         self.assertEqual(s, t)
 
     def test_utf8(self):
-        s = 'Jeżu klątw, spłódź Finom część gry hańb'.encode('UTF-8')
+        s = 'Jeżu klątw, spłódź Finom część gry hańb'.encode()
         with warnings.catch_warnings():
             warnings.filterwarnings('error', category=utils.EncodingWarning)
             t = utils.sanitize_utf8(s)
@@ -182,11 +182,11 @@ class SanitizeUtf8TestCase(TestCase):
             with self.assertRaisesRegex(utils.EncodingWarning, '.* invalid continuation byte'):
                 raise message
 
-        s0 = 'Jeżu klątw, spłódź Finom część gry hańb'.encode('UTF-8')
-        good = 'ó'.encode('UTF-8')
+        s0 = 'Jeżu klątw, spłódź Finom część gry hańb'.encode()
+        good = 'ó'.encode()
         bad = good.decode('UTF-8').encode('ISO-8859-2')
         s1 = s0.replace(good, bad)
-        s2 = s0.replace(good, '\N{REPLACEMENT CHARACTER}'.encode('UTF-8'))
+        s2 = s0.replace(good, '\N{REPLACEMENT CHARACTER}'.encode())
         with warnings.catch_warnings():
             warnings.showwarning = show
             t = utils.sanitize_utf8(s1)
@@ -221,14 +221,14 @@ class NotOverridenTestCase(TestCase):
 
 class StrAsUnicodeTestCase(TestCase):
     def test_ascii(self):
-        for s in '', 'eggs', u'eggs':
+        for s in '', 'eggs', 'eggs':
             self.assertEqual(utils.str_as_unicode(s), '' + s)
             self.assertEqual(utils.str_as_unicode(s, 'UTF-8'), '' + s)
             self.assertEqual(utils.str_as_unicode(s, 'ASCII'), '' + s)
 
     def test_nonascii(self):
         rc = '\N{REPLACEMENT CHARACTER}'
-        s = 'jeż'.encode('UTF-8')
+        s = 'jeż'.encode()
         self.assertEqual(utils.str_as_unicode(s, 'ASCII'), 'je' + rc + rc)
         self.assertEqual(utils.str_as_unicode(s, 'UTF-8'), 'jeż')
 

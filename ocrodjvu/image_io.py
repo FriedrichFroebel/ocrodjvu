@@ -71,9 +71,9 @@ class PNM(ImageFormat):
         size = page_job.size
         rect = (0, 0) + size
         if self._pixel_format.bpp == 1:
-            file.write('P4 {0} {1}\n'.format(*size).encode('ASCII'))  # PBM header
+            file.write('P4 {} {}\n'.format(*size).encode('ASCII'))  # PBM header
         else:
-            file.write('P6 {0} {1} 255\n'.format(*size).encode('ASCII'))  # PPM header
+            file.write('P6 {} {} 255\n'.format(*size).encode('ASCII'))  # PPM header
         data = page_job.render(
             render_layers,
             rect, rect,

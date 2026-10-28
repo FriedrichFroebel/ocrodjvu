@@ -160,7 +160,7 @@ class Engine(common.Engine):
             ):
                 # Implicitly call `wait()` on `__exit__`.
                 pass
-            with open(hocr_file_name, 'r') as hocr_file:
+            with open(hocr_file_name) as hocr_file:
                 return common.Output(
                     hocr_file.read(),
                     format_='html',
